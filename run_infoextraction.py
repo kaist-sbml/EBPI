@@ -2,16 +2,16 @@
 # coding: utf-8
 
 # In[1]:
-from text_classifier.text_classifier_model import text_classifier
+from text.text_classifier_model import text_classifier
 from PaddleOCR.tools.infer.predict_system import predict
-import utility_info
-from arrow_total import arrow_head_tail
-from reaction_text_classifier import make_reaction_and_text_classifier
-from revise_ocr_bbox import revise_ocr_bbox
+import utility
+from arrow.arrow_total import arrow_head_tail
+from pathway.chemical_reaction_output import make_reaction_and_text_classifier
+from text.revise_ocr_bbox import revise_ocr_bbox
 
 #OCR
 print('OCR finding....')
-args = utility_info.parse_args()
+args = utility.parse_args()
 predict(args)
 print('OCR process ended')
 print('OCR revise process start....')

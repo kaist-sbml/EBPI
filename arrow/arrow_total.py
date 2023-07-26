@@ -4,8 +4,8 @@
 # In[1]:
 
 
-from arrow_detection.model.arrow_distinguish_test import arrow_distinguish_test 
-from arrow_detection.arrow_head_tail.other_find_head_tail import find_head_tail
+from arrow_box import arrow_distinguish_test 
+from find_head_tail import find_head_tail
 import torch
 import os
 import ast
