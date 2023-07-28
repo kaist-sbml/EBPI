@@ -23,6 +23,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Subset
 import shutil
 
+parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 def evaluate_model(model, dataloader,device):
     model.eval()
     total_result=dict()
@@ -42,7 +43,7 @@ def classification_image(args)
     model.load_state_dict(torch.load('model/best_model.pt'))
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
     model = model.to(device)
-    dataset = datasets.ImageFolder(args.output_dir,
+    dataset = datasets.ImageFolder(parent_dir+'/'+args.image_dir,
                                transforms.Compose([
                                     transforms.Resize((224, 224)),
                                     transforms.ToTensor(),
@@ -65,7 +66,5 @@ def classification_image(args)
     for name,label in total_result.items():
         revise_name= name.split('/')[-1]
         if label==0:
-            shutil.copyfile(name, 'final_output/non_pathway/'+revise_name)
-        else:
-            shutil.copyfile(name, 'final_output/pathway/'+revise_name)
+            os.remove(parent_dir+'/'+args.image_dir+'/'+revise_name)
     return
