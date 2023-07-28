@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 from arrow_box import arrow_distinguish_test 
 from find_head_tail import find_head_tail
 import torch
@@ -14,17 +8,14 @@ from PIL import Image
 import copy
 
 cpu_device = torch.device("cpu")
-
-
-# In[ ]:
-
-
+parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 #arrow_detection_output
 def arrow_head_tail(args):
     device = torch.device(args.gpu if torch.cuda.is_available() else "cpu")
+    image_directory= parent_dir+'/'+ args.image_dir
     for image_name in os.listdir(args.image_dir):
         try:
-            path= args.image_dir+'/'+image_name
+            path= image_directory+'/'+image_name
             bboxes= arrow_distinguish_test(args.threshold,path,device,args.checkpoint)
             image= cv2.imread(path,cv2.IMREAD_GRAYSCALE)
             width= image.shape[1]
@@ -65,12 +56,12 @@ def arrow_head_tail(args):
                         dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[3]*y_scale)),'None',number])
                         number+=1
             if not 'arrow_detection_result' in os.listdir(args.output_dir):
-                os.mkdir(args.output_dir+'/arrow_detection_result')
+                os.mkdir(parent_dir+'/'+args.output_dir+'/arrow_detection_result')
             if not 'arrow_head_tail_result' in os.listdir(args.output_dir):
-                os.mkdir(args.output_dir+'/arrow_head_tail_result')
+                os.mkdir(parent_dir+'/'+args.output_dir+'/arrow_head_tail_result')
 
 
-            f= open(args.output_dir+'/arrow_head_tail_result/result_'+image_name+'.txt','w')
+            f= open(parent_dir+'/'+args.output_dir+'/arrow_head_tail_result/result_'+image_name+'.txt','w')
             for dst in dst_list:
                 head_tail='head'
                 if dst[1]=='no':
@@ -81,7 +72,7 @@ def arrow_head_tail(args):
                 f.write('\n')
             f.close()
 
-            f= open(args.output_dir+'/arrow_detection_result/arrow_bbox_'+image_name+'.txt','w')
+            f= open(parent_dir+'/'+ args.output_dir+'/arrow_detection_result/arrow_bbox_'+image_name+'.txt','w')
             for bbox in arrow_bbox_list:
                 f.write("arrow_number:{} ; coor:{}".format(bbox[0],bbox[1]))
                 f.write("\n")
