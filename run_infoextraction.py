@@ -10,6 +10,7 @@ from pathway.chemical_reaction_output import make_reaction_and_text_classifier
 from text.revise_ocr_bbox import revise_ocr_bbox
 
 #OCR
+# 여기는 고쳐야 할 곳
 print('OCR finding....')
 args = utility.parse_args()
 predict(args)
