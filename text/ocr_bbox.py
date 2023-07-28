@@ -1,34 +1,13 @@
-import itertools
-from PIL import Image
-from cv2 import groupRectangles
-import cv2
-import os    
-import numpy as np
 import ast
-
+import cv2
+import itertools
+import numpy as np
+import os 
+import subprocess
+from cv2 import groupRectangles
+from PIL import Image
 
 def intersection(rectA, rectB): 
-    '''
-    a, b = rectA, rectB
-    
-    min_dist_x= min(a[2]-a[0],b[2]-b[0])
-    min_dist_y= min(a[3]-a[1],b[3]-b[1])
-    
-    
-    startX = max( min(a[0], a[2]), min(b[0], b[2]) )
-    startY = max( min(a[1], a[3]), min(b[1], b[3]) )
-    endX = min( max(a[0], a[2]), max(b[0], b[2]) )
-    endY = min( max(a[1], a[3]), max(b[1], b[3]) )
-    
-    
-    if startX <= endX+1 and startY <= endY+1:
-        if (endX-startX)/min_dist_x>0.7 or (endY-startY)/min_dist_y>0.7:
-            return True
-        else:
-            return False
-    else:
-        return False
-    '''
     a, b = rectA, rectB
     
     if a[4]=='1' or b[4]=='1':
@@ -54,6 +33,7 @@ def combineRect(rectA, rectB):
 
     return (startX, startY, endX, endY,'1')
 
+
 def checkIntersectAndCombine(rects):
     if rects is None:
         return None
@@ -63,29 +43,6 @@ def checkIntersectAndCombine(rects):
         revise_mainRects.append((rect[0],rect[1],rect[2],rect[3],'0'))
     noIntersect = False
     
-    '''
-    while noIntersect == False:
-        revise_mainRects= list(set(revise_mainRects))
-        newRectsArray = list()
-        for rectA, rectB in itertools.combinations(revise_mainRects, 2):
-            newRect = []
-            if intersection(rectA, rectB):
-                newRect = combineRect(rectA, rectB)
-                
-                newRectsArrayappend(newRect)
-                noIntersect = False
-            
-                if rectA in revise_mainRects:
-                    revise_mainRects.remove(rectA)
-                if rectB in revise_mainRects:
-                    revise_mainRects.remove(rectB)
-        if len(newRectsArray) == 0:
-            noIntersect = True
-        else:
-            revise_mainRects = revise_mainRects + newRectsArray
-    revise_mainRects= [tuple(rect) for rect in revise_mainRects]
-    return revise_mainRects'''
-
     while not noIntersect:
         revise_mainRects= list(set(revise_mainRects))
         newRectsArray = dict()
@@ -125,22 +82,35 @@ def checkIntersectAndCombine(rects):
     revise_mainRects= [tuple(rect) for rect in revise_mainRects]
     return revise_mainRects
 
-def revise_ocr_bbox(args):
-    ocr_result_path= args.draw_img_save_dir
-    ocr_total= open(ocr_result_path+'/'+'system_results.txt','r').read()
-    ocr_inform= ocr_total.split('\n')
+def find_and_combine_ocr_bbox(input_dir):
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
     basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N']
-    f = open(ocr_result_path+'/'+'system_revise_results.txt', 'w')
-    for pathway in ocr_inform:
-        try:
-            image_name,ocr_result= pathway.split('\t')
-        except:
-            continue
-        ocr_list=list()
-        ocr_dict=dict()
+    print('OCR finding....')
+    
+    paddleocr_binary_output = subprocess.check_output(['paddleocr', '--image_dir', '%s'%input_dir])
+    paddleocr_output_list = paddleocr_binary_output.decode("utf-8").split("\n")
+    
+    paddleocr_pathway_id = None
+    paddleocr_pathway_info = {}
+    for idx, elem in enumerate(paddleocr_output_list):
+        if "**********" in elem:
+            if paddleocr_pathway_id != elem.split("**********")[1]:
+                paddleocr_pathway_id = elem.split("**********")[1]
+                paddleocr_pathway_info[paddleocr_pathway_id] = []
+        if "[[[" in elem:
+            info = ast.literal_eval(elem.split("root INFO: ")[1])
+            info_dict = {}
+            info_dict["transcription"] = info[1][0]
+            info_dict["points"] = info[0]
+            paddleocr_pathway_info[paddleocr_pathway_id].append(info_dict)
+
+    print(paddleocr_pathway_info)
+    print('OCR process ended')
+    print('OCR revise process start....')
+    
+    for pathway in paddleocr_pathway_info:
         
-        ocr_result= ast.literal_eval(ocr_result)
+        ocr_result= paddleocr_pathway_info[pathway]
         num=0
         for word in ocr_result:
             word_name= word['transcription']
@@ -181,7 +151,4 @@ def revise_ocr_bbox(args):
             each_box_dict['transcription']= sentence
             each_box_dict['points']= [[box[0],box[1]],[box[2],box[1]],[box[2],box[3]],[box[0],box[3]]]
             final_box_ocr.append(each_box_dict)
-        f.write(image_name+'\t')
-        f.write(str(final_box_ocr)+'\n')
-    f.close()
 
