@@ -192,33 +192,35 @@ def arrow_ocr_match_function(arrow_inform, image_ocr, bbox_inform, basic_formula
             arrow_ocr_match[arrow_name]= after
             
     return arrow_ocr_match, ocr_contained, arrow_name_set
-    
-def make_reaction_and_text_classifier(args,text_classifier):
+
+
+def make_reaction_and_text_classifier(args, text_classifier):
     each_image_ocr= dict()
-    ocr_result= open(args.draw_img_save_dir+'/'+'system_revise_results.txt','r').read()
+    ocr_result= open(args.output+'/'+'system_revise_results.txt','r').read()
     ocr_inform= ocr_result.split('\n')
     dataframe= pd.DataFrame(columns=['image_name','reaction','gene','gene_protein','protein_complex','others'])
-
     
-    if not 'final_output' in os.listdir(args.output_dir):
-        os.mkdir(args.output_dir+'/final_output')
+    if not 'final_output' in os.listdir(args.output):
+        os.mkdir(args.output+'/final_output')
     for each_image in ocr_inform:
         if each_image=='':
             continue
         name, inform= each_image.split('\t')
         each_image_ocr[name]= ast.literal_eval(inform)
+        
+    print("each_image_ocr", each_image_ocr)
 
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
     basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N','C']
-    for file in os.listdir(args.output_dir+'/arrow_head_tail_result'):
+    for file in os.listdir(args.output+'/arrow_head_tail_result'):
         if 'result_' in file:
             arrow_file_name= file.replace('result_','')
             print(arrow_file_name.replace('.txt','')+' start')
-            f= open(args.output_dir+'/arrow_head_tail_result/'+file,'r')
+            f= open(args.output+'/arrow_head_tail_result/'+file,'r')
             data= f.read()
             arrow_inform= data.split('\n')
             image_ocr= each_image_ocr[arrow_file_name.replace('.txt','')]
-            bbox= open(args.output_dir+'/arrow_detection_result/arrow_bbox_'+arrow_file_name,'r')
+            bbox= open(args.output+'/arrow_detection_result/arrow_bbox_'+arrow_file_name,'r')
             bbox_data= bbox.read()
             bbox_inform= bbox_data.split('\n')
             ocr_not_contained=list()
@@ -373,7 +375,7 @@ def make_reaction_and_text_classifier(args,text_classifier):
                     image_inform.append([arrow_file_name.replace('.txt',''), key,gene_list, gene_protein_list, protein_complex_list,other_list])
                 result= pd.DataFrame(image_inform, columns=['image_name','reaction','gene','gene_protein','protein_complex','others'])
                 dataframe= pd.concat([dataframe, result])
-                dataframe.to_excel(args.output_dir+'/output.xlsx')
+                dataframe.to_excel(args.output+'/output.xlsx')
                 
                 '''
                 f = open(args.output_dir+'/final_output/final_'+arrow_file_name, 'w')

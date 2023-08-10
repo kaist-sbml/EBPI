@@ -82,12 +82,11 @@ def checkIntersectAndCombine(rects):
     revise_mainRects= [tuple(rect) for rect in revise_mainRects]
     return revise_mainRects
 
-def find_and_combine_ocr_bbox(input_dir):
+def find_and_combine_ocr_bbox(args):
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
     basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N']
-    print('OCR finding....')
     
-    paddleocr_binary_output = subprocess.check_output(['paddleocr', '--image_dir', '%s'%input_dir])
+    paddleocr_binary_output = subprocess.check_output(['paddleocr', '--image_dir', '%s'%args.input])
     paddleocr_output_list = paddleocr_binary_output.decode("utf-8").split("\n")
     
     paddleocr_pathway_id = None
@@ -95,7 +94,7 @@ def find_and_combine_ocr_bbox(input_dir):
     for idx, elem in enumerate(paddleocr_output_list):
         if "**********" in elem:
             if paddleocr_pathway_id != elem.split("**********")[1]:
-                paddleocr_pathway_id = elem.split("**********")[1]
+                paddleocr_pathway_id = elem.split("**********")[1].split('/')[-1]
                 paddleocr_pathway_info[paddleocr_pathway_id] = []
         if "[[[" in elem:
             info = ast.literal_eval(elem.split("root INFO: ")[1])
@@ -108,9 +107,12 @@ def find_and_combine_ocr_bbox(input_dir):
     print('OCR process ended')
     print('OCR revise process start....')
     
-    for pathway in paddleocr_pathway_info:
-        
-        ocr_result= paddleocr_pathway_info[pathway]
+    f = open(args.output+'/'+'system_revise_results.txt', 'w')
+    
+    for pathway_id in paddleocr_pathway_info:
+        ocr_list = []
+        ocr_dict = {}
+        ocr_result= paddleocr_pathway_info[pathway_id]
         num=0
         for word in ocr_result:
             word_name= word['transcription']
@@ -151,4 +153,8 @@ def find_and_combine_ocr_bbox(input_dir):
             each_box_dict['transcription']= sentence
             each_box_dict['points']= [[box[0],box[1]],[box[2],box[1]],[box[2],box[3]],[box[0],box[3]]]
             final_box_ocr.append(each_box_dict)
+        
+        f.write(pathway_id+'\t')
+        f.write(str(final_box_ocr)+'\n')
+    f.close()
 

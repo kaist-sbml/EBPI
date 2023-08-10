@@ -11,12 +11,21 @@ from text.text_classifier_model import text_classifier
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 group = parser.add_argument_group('EBPI')
-group.add_argument('-i', '--input', dest='input', default='./input', nargs='+',
+group.add_argument('-i', '--input', dest='input', default='./input',
                   help='Use this argument to specify an input folder\n\n')
-options = parser.parse_args()
+group.add_argument('-o', '--output', dest='output', default='./output',
+                  help='Use this argument to specify an output folder\n\n')
+group.add_argument('-t', '--threshold', dest='threshold', type=float, default=0.9,
+                  help='Use this argument to set confidence score of object detection\n\n')
+group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
+                  help='Use this argument for gpu usage\n\n')
+args = parser.parse_args()
+
+print(args.input)
 
 #OCR
-find_and_combine_ocr_bbox(options.input)
+print('OCR finding....')
+find_and_combine_ocr_bbox(args)
 print('OCR revise process ended')
 
 #Head tail
@@ -26,6 +35,6 @@ print('arrow_head_tail detection ended')
 
 #final processing
 print('start final processing....')
-output= make_reaction_and_text_classifier(args,text_classifier)
-print('final output save to '+ args.output_dir)
+output= make_reaction_and_text_classifier(args, text_classifier)
+print('final output save to '+ args.output)
 

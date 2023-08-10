@@ -20,6 +20,8 @@ from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2
 from torchvision.models.detection.rpn import AnchorGenerator
 import torchvision.transforms as T
 
+parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
 def bounding_box_intersection(box1, box2): 
 
     a, b = box1, box2
@@ -56,7 +58,8 @@ def combineRect(rectA, rectB):
     return (startX, startY, endX, endY)
     
     
-def arrow_distinguish_test(threshold,test_image_path,device,checkpoint):
+def arrow_distinguish_test(threshold, test_image_path, device):
+    checkpoint = parent_dir + '/arrow/model/checkpoint.pickle'
     cpu_device = torch.device("cpu")
     num_classes=2
     model = fasterrcnn_resnet50_fpn_v2(pretrained=True)
