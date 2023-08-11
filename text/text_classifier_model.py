@@ -37,7 +37,7 @@ def text_classifier(args, ocr_not_contained_name):
     bert_model= AutoModel.from_pretrained('dmis-lab/biobert-base-cased-v1.2').to(device)
     input_ids = encoded_dict['input_ids']
     model= Classification_Model(bert_model,device)
-    model.load_state_dict(torch.load(checkpoint_bert, map_location=device))
+    model.load_state_dict(torch.load(checkpoint_bert, map_location=device), strict= False)
     logit= model.Embedding(torch.tensor(input_ids).to(device))
 
     return logit.cpu()
