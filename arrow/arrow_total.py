@@ -31,9 +31,10 @@ def arrow_head_tail(args):
         number=0
         for box in bboxes:
             arrow_coor= box
+
             try:
                 image_crop= image[max(arrow_coor[1]-5,0):min(arrow_coor[3]+5,800),max(arrow_coor[0]-5,0):min(arrow_coor[2]+5,800)]
-                dst= find_head_tail(image_crop)
+                dst= find_head_tail.find_head_tail(image_crop)
 
                 for point in dst:
                     dst_coor= point[0]
@@ -56,6 +57,7 @@ def arrow_head_tail(args):
                     dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[1]*y_scale)),'None',number])
                     dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[3]*y_scale)),'None',number])
                     number+=1
+
         if not 'arrow_detection_result' in os.listdir(args.output):
             os.mkdir(parent_dir+'/'+args.output+'/arrow_detection_result')
         if not 'arrow_head_tail_result' in os.listdir(args.output):

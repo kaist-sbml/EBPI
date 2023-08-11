@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import argparse
+import os
 import subprocess
 from arrow.arrow_total import arrow_head_tail
 from paddleocr.tools.infer.predict_system import main
@@ -21,7 +22,8 @@ group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
                   help='Use this argument for gpu usage\n\n')
 args = parser.parse_args()
 
-print(args.input)
+if os.path.isdir(args.output) == False:
+    os.mkdir(args.output)
 
 #OCR
 print('OCR finding....')

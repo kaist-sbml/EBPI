@@ -207,8 +207,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
             continue
         name, inform= each_image.split('\t')
         each_image_ocr[name]= ast.literal_eval(inform)
-        
-    print("each_image_ocr", each_image_ocr)
 
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
     basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N','C']

@@ -103,7 +103,6 @@ def find_and_combine_ocr_bbox(args):
             info_dict["points"] = info[0]
             paddleocr_pathway_info[paddleocr_pathway_id].append(info_dict)
 
-    print(paddleocr_pathway_info)
     print('OCR process ended')
     print('OCR revise process start....')
     
