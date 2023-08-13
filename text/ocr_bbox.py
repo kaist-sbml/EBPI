@@ -97,7 +97,7 @@ def find_and_combine_ocr_bbox(args):
                 paddleocr_pathway_id = elem.split("**********")[1].split('/')[-1]
                 paddleocr_pathway_info[paddleocr_pathway_id] = []
         if "[[[" in elem:
-            info = ast.literal_eval(elem.split("root INFO: ")[1])
+            info = ast.literal_eval(elem.split("ppocr INFO: ")[1])
             info_dict = {}
             info_dict["transcription"] = info[1][0]
             info_dict["points"] = info[0]

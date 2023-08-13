@@ -6,28 +6,20 @@
 
 from efficientnet_pytorch import EfficientNet
 import numpy as np
-import json
 from PIL import Image
 import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.optim import lr_scheduler
-from torchvision import transforms
-import matplotlib.pyplot as plt
-import time
-import os
-import copy
-import random
 from torchvision import transforms, datasets
-from sklearn.model_selection import train_test_split
-from torch.utils.data import Subset
+import os
+import random
+import shutil
 
 def processing(metabolite, device):
+    abs_path= os.path.dirname(__file__)
     model_name = 'efficientnet-b0'
     model = EfficientNet.from_pretrained(model_name,num_classes=2)
-    model.load_state_dict(torch.load('./model/image_classification.pt'))
-    model = model.to(device)
-    dataset = datasets.ImageFolder(metabolite,
+    model.load_state_dict(torch.load(abs_path+'/model/image_classification.pt',map_location='cpu'))
+    model.to(device)
+    dataset = datasets.ImageFolder(abs_path+'/output_file/'+ metabolite,
                                    transforms.Compose([
                                         transforms.Resize((224, 224)),
                                         transforms.ToTensor(),
@@ -43,9 +35,12 @@ def processing(metabolite, device):
 
     allFiles, _ = map(list, zip(*dataloaders.dataset.samples))
     
-    return model, allFiles, dataloader
+    return model, allFiles, dataloaders
 
 def classification(metabolite, device):
+    batch_size  = 4
+    abs_path= os.path.dirname(__file__)
+    device=  torch.device(device if torch.cuda.is_available() else "cpu")
     model, allFiles, dataloader= processing(metabolite, device)
     model.eval()
     total_result=dict()
@@ -56,15 +51,14 @@ def classification(metabolite, device):
         for j in range(inputs.size()[0]):
             image_name= allFiles[i*batch_size +j]
             total_result[image_name]= preds[j]
-    if not os.path.exists(os.path.abspath(os.path.join(os.getcwd(), os.pardir))+'input'):
-        os.mkdir(os.path.abspath(os.path.join(os.getcwd(), os.pardir))+'input')
+    if not os.path.exists(os.path.abspath(os.path.join(abs_path, os.pardir))+'/input'):
+        os.mkdir(os.path.abspath(os.path.join(abs_path, os.pardir))+'/input')
         
     for name,label in total_result.items():
-    revise_name= name.split('/')[-1]
-    if label==0:
-        os.remove(name)
-    else:
-        shutil.move(name, os.path.abspath(os.path.join(os.getcwd(), os.pardir))+'input/'+revise_name)
+        revise_name= name.split('/')[-1]
+        if label==0:
+            os.remove(name)
+        else:
+            shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+'/input/'+revise_name)
         
     return 
-
