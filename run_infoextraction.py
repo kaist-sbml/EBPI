@@ -37,7 +37,7 @@ group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
                   help='Use this argument for gpu usage\n\n')
 
 #header example
-#header = 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+header = {'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'}
 
 args = parser.parse_args()
 
@@ -46,8 +46,12 @@ if os.path.isdir(args.output) == False:
 
 #bulk download of specific metabolite
 if args.metabolite:
-    bulkdownload(args.header, args.metabolite, args.email, args.len)
-    classification(args.metabolite, args.gpu)
+    print("Bulk downloading....")
+    bulkdownload_result = bulkdownload(args.header, args.metabolite, args.email, args.len)
+    print("Bulk downloading ended")
+    print("Image classification....")
+    classification(bulkdownload_result, args.metabolite, args.gpu)
+    print("Image classification ended")
     
 #OCR
 print('OCR finding....')

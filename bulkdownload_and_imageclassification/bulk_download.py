@@ -33,7 +33,7 @@ def bulkdownload(header, metabolite_name, email, len_request):
     for record in records:
         if 'PMC'+ record in pmc_name_dict:
             result_list.append(pmc_name_dict['PMC'+record])
-            
+
     if not os.path.exists(abs_path+'/output_file/'+metabolite_name+'/0'):
         os.makedirs(abs_path+'/output_file/'+metabolite_name+'/0')        
     for url in result_list:
@@ -91,7 +91,8 @@ def bulkdownload(header, metabolite_name, email, len_request):
                     print(response.status_code)
         except:
             pass
-
+        
+    return result_list
 '''
 if __name__ == '__main__':
     header= 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'

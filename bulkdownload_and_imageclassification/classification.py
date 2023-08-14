@@ -37,28 +37,29 @@ def processing(metabolite, device):
     
     return model, allFiles, dataloaders
 
-def classification(metabolite, device):
-    batch_size  = 4
-    abs_path= os.path.dirname(__file__)
-    device=  torch.device(device if torch.cuda.is_available() else "cpu")
-    model, allFiles, dataloader= processing(metabolite, device)
-    model.eval()
-    total_result=dict()
-    for i, (inputs, _) in enumerate(dataloader):
-        outputs=model(inputs.to(device))
-        _, preds = torch.max(outputs, 1)
-        preds= list(preds.detach().cpu().numpy())
-        for j in range(inputs.size()[0]):
-            image_name= allFiles[i*batch_size +j]
-            total_result[image_name]= preds[j]
-    if not os.path.exists(os.path.abspath(os.path.join(abs_path, os.pardir))+'/input'):
-        os.mkdir(os.path.abspath(os.path.join(abs_path, os.pardir))+'/input')
-        
-    for name,label in total_result.items():
-        revise_name= name.split('/')[-1]
-        if label==0:
-            os.remove(name)
-        else:
-            shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+'/input/'+revise_name)
-        
-    return 
+def classification(bulkdownload_result, metabolite, device):
+    if bulkdownload_result != []:
+        batch_size = 4
+        abs_path= os.path.dirname(__file__)
+        device=  torch.device(device if torch.cuda.is_available() else "cpu")
+        model, allFiles, dataloader= processing(metabolite, device)
+        model.eval()
+        total_result=dict()
+        for i, (inputs, _) in enumerate(dataloader):
+            outputs=model(inputs.to(device))
+            _, preds = torch.max(outputs, 1)
+            preds= list(preds.detach().cpu().numpy())
+            for j in range(inputs.size()[0]):
+                image_name= allFiles[i*batch_size +j]
+                total_result[image_name]= preds[j]
+        if not os.path.exists(os.path.abspath(os.path.join(abs_path, os.pardir))+'/input'):
+            os.mkdir(os.path.abspath(os.path.join(abs_path, os.pardir))+'/input')
+
+        for name,label in total_result.items():
+            revise_name= name.split('/')[-1]
+            if label==0:
+                os.remove(name)
+            else:
+                shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+'/input/'+revise_name)
+
+        return
