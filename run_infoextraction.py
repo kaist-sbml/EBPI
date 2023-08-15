@@ -23,6 +23,8 @@ group.add_argument('-m', '--metabolite', dest='metabolite', default=False,
                   help='Use this argument to bulk download of specific target product\n\n')
 group.add_argument('-he', '--header', dest='header', type= str,
                   help='Use this argument to headers of chrome\n\n')
+#header example= 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'
+
 group.add_argument('-e', '--email', dest='email', type= str,
                   help='Use this argument to email of pmc\n\n')
 group.add_argument('-l', '--len', dest='len', default=10000,
@@ -36,8 +38,8 @@ group.add_argument('-t', '--threshold', dest='threshold', type=float, default=0.
 group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
                   help='Use this argument for gpu usage\n\n')
 
-#header example
-header = {'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36'}
+
+
 
 args = parser.parse_args()
 
