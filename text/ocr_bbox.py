@@ -6,7 +6,12 @@ import os
 import subprocess
 from cv2 import groupRectangles
 from PIL import Image
+import difflib
 
+def compare(a,b):
+    if difflib.SequenceMatcher(None,a,b).ratio()>0.8:
+        return True
+    
 def intersection(rectA, rectB): 
     a, b = rectA, rectB
     
@@ -102,7 +107,18 @@ def find_and_combine_ocr_bbox(args):
             info_dict["transcription"] = info[1][0]
             info_dict["points"] = info[0]
             paddleocr_pathway_info[paddleocr_pathway_id].append(info_dict)
-
+            
+    #remove image that not contains target product
+    if args.metabolite:
+        for id, ocr_informs in paddleocr_pathway_info.items():
+            criteria=False
+            for ocr_inform in ocr_informs:
+                word= info_dict["points"]
+                if compare(word, args.metabolite):
+                    criteria= True
+            if not criteria:
+                del paddleocr_pathway_info[id]
+                os.remove(os.path.abspath(os.path.join(os.getcwd(), os.pardir,args.input,id)))
     print('OCR process ended')
     print('OCR revise process start....')
     
@@ -156,4 +172,3 @@ def find_and_combine_ocr_bbox(args):
         f.write(pathway_id+'\t')
         f.write(str(final_box_ocr)+'\n')
     f.close()
-
