@@ -84,7 +84,7 @@ def checkIntersectAndCombine(rects):
 
 def find_and_combine_ocr_bbox(args):
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
-    basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N']
+    basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N','COOH']
     
     paddleocr_binary_output = subprocess.check_output(['paddleocr', '--image_dir', '%s'%args.input])
     paddleocr_output_list = paddleocr_binary_output.decode("utf-8").split("\n")
