@@ -52,16 +52,16 @@ if args.metabolite:
         args.output= os.path.join(args.output,metabolite)
         
         if os.path.isdir(args.input) == False:
-            os.mkdir(args.input)
+            os.makedirs(args.input)
         if os.path.isdir(args.output) == False:
-            os.mkdir(args.output)
+            os.makedirs(args.output)
 
         print(metabolite+" start")
         print("Bulk downloading....")
-        bulkdownload_result = bulkdownload(args.header, metabolite, args.email, args.len)
+        bulkdownload_result = bulkdownload(args)
         print("Bulk downloading ended")
         print("Image classification....")
-        classification(bulkdownload_result, metabolite, args.gpu)
+        classification(args, bulkdownload_result)
         print("Image classification ended")
         #OCR
         print('OCR finding....')
