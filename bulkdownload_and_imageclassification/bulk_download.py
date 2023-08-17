@@ -21,10 +21,9 @@ def bulkdownload(args):
     for name in list(pmc_list1['File']):
         pmc_name_dict[name.split('.')[1]]= 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
 
-    for index,row in pmc_list2[['File','Accession ID']].iterrows():
-        pmc_id= row['Accession ID']
-        file_id= row['File']
-        pmc_name_dict[pmc_id]= 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+file_id
+    for name in list(pmc_list2['File']):
+        pmc_name_dict[name.split('/')[-1].strip('.tar.gz')] = 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
+
     Entrez.email = args.email
     terms= args.metabolite+' AND metabolic engineering'
     handle = Entrez.esearch(db="pmc", term=terms, retmax=args.len)
