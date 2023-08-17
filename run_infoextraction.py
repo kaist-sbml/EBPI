@@ -49,10 +49,10 @@ if os.path.isdir(args.output) == False:
 #bulk download of specific metabolite
 if args.metabolite:
     print("Bulk downloading....")
-    bulkdownload_result = bulkdownload(args.header, args.metabolite, args.email, args.len)
+    bulkdownload_result = bulkdownload(args)
     print("Bulk downloading ended")
     print("Image classification....")
-    classification(bulkdownload_result, args.metabolite, args.gpu)
+    classification(args, bulkdownload_result)
     print("Image classification ended")
     
 #OCR
