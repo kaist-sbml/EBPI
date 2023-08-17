@@ -43,35 +43,62 @@ group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
 
 args = parser.parse_args()
 
-if os.path.isdir(args.input) == False:
-    os.mkdir(args.input)
-
-if os.path.isdir(args.output) == False:
-    os.mkdir(args.output)
-
 #bulk download of specific metabolite
 if args.metabolite:
-    print("Bulk downloading....")
-    bulkdownload_result = bulkdownload(args)
-    print("Bulk downloading ended")
-    print("Image classification....")
-    classification(args, bulkdownload_result)
-    print("Image classification ended")
-    
-#OCR
-print('OCR finding....')
-find_and_combine_ocr_bbox(args)
-print('OCR revise process ended')
+    metabolites= args.metabolite.split(' ')
+    for metabolite in metabolites:
+        args.metabolite= metabolite
+        args.input= os.path.join(args.input,metabolite)
+        args.output= os.path.join(args.output,metabolite)
+        
+        if os.path.isdir(args.input) == False:
+            os.mkdir(args.input)
+        if os.path.isdir(args.output) == False:
+            os.mkdir(args.output)
 
-#Head tail
-print('arrow_head_tail finding....')
-arrow_head_tail(args)
-print('arrow_head_tail detection ended')
+        print(metabolite+" start")
+        print("Bulk downloading....")
+        bulkdownload_result = bulkdownload(args.header, metabolite, args.email, args.len)
+        print("Bulk downloading ended")
+        print("Image classification....")
+        classification(bulkdownload_result, metabolite, args.gpu)
+        print("Image classification ended")
+        #OCR
+        print('OCR finding....')
+        find_and_combine_ocr_bbox(args)
+        print('OCR revise process ended')
 
-#final processing
-print('start final processing....')
-output= make_reaction_and_text_classifier(args, text_classifier)
-print('final output save to '+ args.output)
+        #Head tail
+        print('arrow_head_tail finding....')
+        arrow_head_tail(args)
+        print('arrow_head_tail detection ended')
+
+        #final processing
+        print('start final processing....')
+        output= make_reaction_and_text_classifier(args, text_classifier)
+        print('final output save to '+ args.output)
+
+else:    
+    if os.path.isdir(args.input) == False:
+        os.mkdir(args.input)
+
+    if os.path.isdir(args.output) == False:
+        os.mkdir(args.output)
+    #OCR
+    print('OCR finding....')
+    find_and_combine_ocr_bbox(args)
+    print('OCR revise process ended')
+
+    #Head tail
+    print('arrow_head_tail finding....')
+    arrow_head_tail(args)
+    print('arrow_head_tail detection ended')
+
+    #final processing
+    print('start final processing....')
+    output= make_reaction_and_text_classifier(args, text_classifier)
+    print('final output save to '+ args.output)
+
 
 t2 = time.time()
 print('Execution time: %.3f minutes'%((t2-t1)/60))

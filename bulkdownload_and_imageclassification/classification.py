@@ -59,5 +59,4 @@ def classification(args, bulkdownload_result):
                 os.remove(name)
             else:
                 shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+args.input+revise_name)
-
     shutil.rmtree(abs_path+'/output_file/')

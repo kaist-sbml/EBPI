@@ -102,7 +102,7 @@ def find_and_combine_ocr_bbox(args):
                 paddleocr_pathway_id = elem.split("**********")[1].split('/')[-1]
                 paddleocr_pathway_info[paddleocr_pathway_id] = []
         if "[[[" in elem:
-            info = ast.literal_eval(elem.split("root INFO: ")[1])
+            info = ast.literal_eval(elem.split("ppocr INFO: ")[1])
             info_dict = {}
             info_dict["transcription"] = info[1][0]
             info_dict["points"] = info[0]
@@ -110,17 +110,21 @@ def find_and_combine_ocr_bbox(args):
             
     #remove image that not contains target product
     if args.metabolite:
+        remove_key = []
         for id, ocr_informs in paddleocr_pathway_info.items():
             criteria=False
             for ocr_inform in ocr_informs:
-                word= info_dict["points"]
+                word= info_dict["transcription"]
                 if compare(word, args.metabolite):
                     criteria= True
             if not criteria:
-                del paddleocr_pathway_info[id]
-                os.remove(os.path.abspath(os.path.join(os.getcwd(), os.pardir,args.input,id)))
+                remove_key.append(id)
+        for key in remove_key:
+            del paddleocr_pathway_info[key]
+            os.remove(os.path.join(args.input,key))
     print('OCR process ended')
     print('OCR revise process start....')
+    
     
     f = open(args.output+'/'+'system_revise_results.txt', 'w')
     
