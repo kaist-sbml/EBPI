@@ -4,6 +4,7 @@
 import argparse
 import os
 import subprocess
+import time
 from arrow.arrow_total import arrow_head_tail
 from paddleocr.tools.infer.predict_system import main
 from pathway.chemical_reaction_output import make_reaction_and_text_classifier
@@ -12,6 +13,7 @@ from text.text_classifier_model import text_classifier
 from bulkdownload_and_imageclassification.bulk_download import bulkdownload
 from bulkdownload_and_imageclassification.classification import classification
 
+t1 = time.time()
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 group = parser.add_argument_group('EBPI')
@@ -31,7 +33,7 @@ group.add_argument('-l', '--len', dest='len', default=10000,
                   help='Use this argument to how many paper to bring from pmc about specific target product\n\n')
 
 
-group.add_argument('-o', '--output', dest='output', default='output',
+group.add_argument('-o', '--output', dest='output', default='./output',
                   help='Use this argument to specify an output folder\n\n')
 group.add_argument('-t', '--threshold', dest='threshold', type=float, default=0.9,
                   help='Use this argument to set confidence score of object detection\n\n')
@@ -39,9 +41,10 @@ group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
                   help='Use this argument for gpu usage\n\n')
 
 
-
-
 args = parser.parse_args()
+
+if os.path.isdir(args.input) == False:
+    os.mkdir(args.input)
 
 if os.path.isdir(args.output) == False:
     os.mkdir(args.output)
@@ -70,3 +73,5 @@ print('start final processing....')
 output= make_reaction_and_text_classifier(args, text_classifier)
 print('final output save to '+ args.output)
 
+t2 = time.time()
+print('Execution time: %.3f minutes'%((t2-t1)/60))

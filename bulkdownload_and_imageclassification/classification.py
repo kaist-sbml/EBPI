@@ -10,9 +10,9 @@ from efficientnet_pytorch import EfficientNet
 from PIL import Image
 from torchvision import transforms, datasets
 
+abs_path = os.path.dirname(__file__)
 
 def processing(metabolite, device):
-    abs_path= os.path.dirname(__file__)
     model_name = 'efficientnet-b0'
     model = EfficientNet.from_pretrained(model_name,num_classes=2)
     model.load_state_dict(torch.load(abs_path+'/model/image_classification.pt',map_location='cpu'))
@@ -39,7 +39,6 @@ def processing(metabolite, device):
 def classification(args, bulkdownload_result):
     if bulkdownload_result != []:
         batch_size = 4
-        abs_path = os.path.dirname(__file__)
         device = torch.device(args.gpu if torch.cuda.is_available() else "cpu")
         model, allFiles, dataloader= processing(args.metabolite, device)
         model.eval()
@@ -61,4 +60,4 @@ def classification(args, bulkdownload_result):
             else:
                 shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+args.input+revise_name)
 
-        return
+    shutil.rmtree(abs_path+'/output_file/')
