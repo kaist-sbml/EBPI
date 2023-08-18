@@ -50,13 +50,17 @@ def classification(args, bulkdownload_result):
             for j in range(inputs.size()[0]):
                 image_name = allFiles[i*batch_size +j]
                 total_result[image_name] = preds[j]
-        if not os.path.exists(os.path.abspath(os.path.join(abs_path, os.pardir))+args.input):
-            os.mkdir(os.path.abspath(os.path.join(abs_path, os.pardir))+args.input)
+        if not os.path.exists(os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input):
+            os.mkdir(os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input)
 
         for name,label in total_result.items():
             revise_name = name.split('/')[-1]
             if label == 0:
                 os.remove(name)
             else:
-                shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+args.input+revise_name)
+                shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name)
+                
+        return True
+    else:
+        return False
     shutil.rmtree(abs_path+'/output_file/')

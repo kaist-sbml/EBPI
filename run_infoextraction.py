@@ -46,10 +46,13 @@ args = parser.parse_args()
 #bulk download of specific metabolite
 if args.metabolite:
     metabolites= args.metabolite.split(' ')
+    original_input_dir = args.input
+    original_output_dir = args.output
     for metabolite in metabolites:
+
         args.metabolite= metabolite
-        args.input= os.path.join(args.input,metabolite)
-        args.output= os.path.join(args.output,metabolite)
+        args.input= os.path.join(original_input_dir,metabolite)
+        args.output= os.path.join(original_output_dir,metabolite)
         
         if os.path.isdir(args.input) == False:
             os.makedirs(args.input)
@@ -60,23 +63,28 @@ if args.metabolite:
         print("Bulk downloading....")
         bulkdownload_result = bulkdownload(args)
         print("Bulk downloading ended")
-        print("Image classification....")
-        classification(args, bulkdownload_result)
-        print("Image classification ended")
-        #OCR
-        print('OCR finding....')
-        find_and_combine_ocr_bbox(args)
-        print('OCR revise process ended')
+        
+        if bulkdownload_result == []:
+            print("There is no result to analyze")
+            
+        else:
+            print("Image classification....")
+            classification(args, bulkdownload_result)
+            print("Image classification ended")
+            #OCR
+            print('OCR finding....')
+            find_and_combine_ocr_bbox(args)
+            print('OCR revise process ended')
 
-        #Head tail
-        print('arrow_head_tail finding....')
-        arrow_head_tail(args)
-        print('arrow_head_tail detection ended')
+            #Head tail
+            print('arrow_head_tail finding....')
+            arrow_head_tail(args)
+            print('arrow_head_tail detection ended')
 
-        #final processing
-        print('start final processing....')
-        output= make_reaction_and_text_classifier(args, text_classifier)
-        print('final output save to '+ args.output)
+            #final processing
+            print('start final processing....')
+            output= make_reaction_and_text_classifier(args, text_classifier)
+            print('final output save to '+ args.output)
 
 else:    
     if os.path.isdir(args.input) == False:
