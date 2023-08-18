@@ -10,20 +10,10 @@ from Bio import Entrez
 from PIL import Image
 
 
-def bulkdownload(args):
+def bulkdownload(args, pmc_name_dict):
     headers= dict()
     headers['user_agent']= args.header
-    pmc_name_dict=dict()
-    abs_path= os.path.dirname(__file__)
-    pmc_list1= pd.read_csv(abs_path+'/oa_non_comm_use_pdf.csv')
-    pmc_list2= pd.read_csv(abs_path+'/oa_comm_use_file_list.csv')
-
-    for name in list(pmc_list1['File']):
-        pmc_name_dict[name.split('.')[1]]= 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
-
-    for name in list(pmc_list2['File']):
-        pmc_name_dict[name.split('/')[-1].strip('.tar.gz')] = 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
-
+    
     Entrez.email = args.email
     terms= args.metabolite+' AND metabolic engineering'
     handle = Entrez.esearch(db="pmc", term=terms, retmax=args.len)

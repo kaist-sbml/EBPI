@@ -45,9 +45,21 @@ args = parser.parse_args()
 
 #bulk download of specific metabolite
 if args.metabolite:
+    pmc_name_dict=dict()
+    abs_path= os.path.dirname(__file__)
+    pmc_list1= pd.read_csv(abs_path + '/bulkdownload_and_imageclassification/oa_non_comm_use_pdf.csv')
+    pmc_list2= pd.read_csv(abs_path + '/bulkdownload_and_imageclassification/oa_comm_use_file_list.csv')
+
+    for name in list(pmc_list1['File']):
+        pmc_name_dict[name.split('.')[1]]= 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
+
+    for name in list(pmc_list2['File']):
+        pmc_name_dict[name.split('/')[-1].strip('.tar.gz')] = 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
+    
     metabolites= args.metabolite.split(' ')
     original_input_dir = args.input
     original_output_dir = args.output
+    
     for metabolite in metabolites:
 
         args.metabolite= metabolite
@@ -61,7 +73,7 @@ if args.metabolite:
 
         print(metabolite+" start")
         print("Bulk downloading....")
-        bulkdownload_result = bulkdownload(args)
+        bulkdownload_result = bulkdownload(args, pmc_name_dict)
         print("Bulk downloading ended")
         
         if bulkdownload_result == []:
