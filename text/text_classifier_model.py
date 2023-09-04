@@ -14,7 +14,7 @@ class Classification_Model(nn.Module):
         self.bert_model = bert_model
         self.softmax= nn.Softmax()
         self.device= device
-        self.linear= nn.Linear(768,4).to(self.device)
+        self.linear= nn.Linear(768,3).to(self.device)
         
     def Embedding(self,input):
         out=self.bert_model(input_ids=input,output_hidden_states=True)
@@ -24,7 +24,7 @@ class Classification_Model(nn.Module):
         return out
 
 def text_classifier(args, ocr_not_contained_name):
-    checkpoint_bert = parent_dir + '/text/model/model_BioBERT.pickle'
+    checkpoint_bert = parent_dir + '/text/model/text_classifier_model_230823.pickle'
     tokenizer= AutoTokenizer.from_pretrained('dmis-lab/biobert-base-cased-v1.2', do_lower_case=False, truncation=True)
     encoded_dict = tokenizer.batch_encode_plus(
             batch_text_or_text_pairs= ocr_not_contained_name,
