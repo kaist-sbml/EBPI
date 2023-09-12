@@ -215,19 +215,25 @@ def make_reaction_and_text_classifier(args, text_classifier):
             arrow_file_name= file.replace('result_','')
             print(arrow_file_name.replace('.txt','')+' start')
             f= open(args.output+'/arrow_head_tail_result/'+file,'r')
-            data= f.read()
-            arrow_inform= data.split('\n')
-            image_ocr= each_image_ocr[arrow_file_name.replace('.txt','')]
+            data= f.read()                      
             bbox= open(args.output+'/arrow_detection_result/arrow_bbox_'+arrow_file_name,'r')
             bbox_data= bbox.read()
+            
+            if data == '' or bbox_data == '':
+                continue
+            
+            image_ocr= each_image_ocr[arrow_file_name.replace('.txt','')]
+            arrow_inform= data.split('\n')
             bbox_inform= bbox_data.split('\n')
             ocr_not_contained=list()
             ocr_not_contained_name= list()
             total_output=list()
             arrow_inform= sort_arrow_head_tail(arrow_inform,image_ocr,bbox_inform, basic_formula, special_unit)
-            ocr_list= [word['transcription'] for word in image_ocr if not len(word['transcription'])==1 or word['transcription'].upper in basic_formula or word['transcription'] in special_unit]
+            ocr_list= [word['transcription'] for word in image_ocr if not len(word['transcription'])==1 and not word['transcription'].upper() in basic_formula and not word['transcription'] in special_unit]
+            
             if ocr_list==[]:
-                ocr_not_contained_arrow_match=dict()
+                continue
+
             else:
                 word_class_total= text_classifier(args,ocr_list).detach().numpy()
                 image_ocr=[ocr for ocr in image_ocr if ocr['transcription'] in ocr_list]
@@ -244,84 +250,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
                     ocr_not_contained_arrow_match[arrow_name]=[]  
             
             #ocr that are not metabolites
-            '''
-            try:
-                if len(ocr_not_contained_name)!=0:
-                    #word_class_total= text_classifier(args,ocr_not_contained_name).detach().numpy()
-                    for word_ocr_inform in ocr_not_contained:
-                        word_ocr= word_ocr_inform[0]
-                        index_number= word_ocr_inform[1]
-                        word_class= word_class_total[index_number]
-                        x_sum=0
-                        y_sum=0
-                        word_ocr_coor= word_ocr['points']
-                        arrow_set=True
-                        for point in word_ocr_coor:
-                            x_sum+= point[0]
-                            y_sum+= point[1]
-                        x_avg= x_sum/len(word_ocr_coor)
-                        y_avg= y_sum/len(word_ocr_coor)
-
-                        min_dist= 10**9
-
-                        for arrow_name in arrow_name_set:
-                            near_criteria=False
-                            middle_criterian=False
-                            if arrow_name=='':
-                                continue
-                            each_arrow_min_dist= 10**9
-                            arrow_i= [ast.literal_eval(i.split(' ; ')[1].replace('coor:','')) for i in bbox_inform if arrow_name == i.split(' ; ')[0]][0]
-                            arrow_i_list= [ast.literal_eval(i.split(' ; ')[1].replace('coor:','')) for i in arrow_inform if arrow_name == i.split(' ; ')[0]]
-                            middle_point= ((int(arrow_i[0])+int(arrow_i[2]))/2,(int(arrow_i[1])+int(arrow_i[3]))/2)
-                            arrow_i_max_len= max(abs(arrow_i[2]-arrow_i[0]), abs(arrow_i[3]-arrow_i[1]))
-
-                            #whether ocr is near the arrow
-
-                            for point in word_ocr_coor:
-                                near_dist=(point[0]-middle_point[0])**2+(point[1]-middle_point[1])**2
-                                near_dist2= (x_avg-middle_point[0])**2+(y_avg-middle_point[1])**2
-                                if min(near_dist**(1/2),near_dist2**(1/2)) < arrow_i_max_len:
-                                    near_criteria=True
-                            if middle_criteria(arrow_i_list[0], arrow_i_list[1], (x_avg, y_avg)):
-                                middle_criterian= True
-                            if near_criteria and middle_criterian:
-                                for point in word_ocr_coor:
-                                    dist= (point[0]-middle_point[0])**2+(point[1]-middle_point[1])**2
-                                    if each_arrow_min_dist > dist:
-                                        each_arrow_min_dist=dist
-                                    for arrow in arrow_i_list:
-                                        dist_corner= (arrow[0]-point[0])**2+(arrow[1]-point[1])**2
-                                        if each_arrow_min_dist > dist_corner:
-                                            each_arrow_min_dist=dist_corner
-                                middle_point_dist= (x_avg-middle_point[0])**2+(y_avg-middle_point[1])**2
-                                min_each_arrow= min(middle_point_dist, each_arrow_min_dist)
-
-                                if min_dist> min_each_arrow:
-                                    min_dist= min_each_arrow
-                                    arrow_set= arrow_name
-
-                        if arrow_set==True:
-                            continue
-
-                        if np.argmax(np.array(word_class))==0:
-                            before_inform= ocr_not_contained_arrow_match[arrow_set]
-                            before_inform.append((word_ocr['transcription'],'gene'))
-                            ocr_not_contained_arrow_match[arrow_set]=before_inform
-                        elif np.argmax(np.array(word_class))==1:
-                            before_inform= ocr_not_contained_arrow_match[arrow_set]
-                            before_inform.append((word_ocr['transcription'],'protein'))
-                            ocr_not_contained_arrow_match[arrow_set]=before_inform
-                        elif np.argmax(np.array(word_class))==2:
-                            before_inform= ocr_not_contained_arrow_match[arrow_set]
-                            before_inform.append((word_ocr['transcription'],'others'))
-                            ocr_not_contained_arrow_match[arrow_set]=before_inform
-
-                        else:
-                            continue
-
-            except:
-                print(arrow_file_name.replace('.txt','')+' error')
-            '''
             if len(ocr_not_contained_name)!=0:
                 #word_class_total= text_classifier(args,ocr_not_contained_name).detach().numpy()
                 for word_ocr_inform in ocr_not_contained:
@@ -397,58 +325,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
             
             
             #make reaction
-            '''
-            try:
-                for arrow_ocr, inform in arrow_ocr_match.items():
-                    continue_criteria=False
-                    for result_inform in inform:
-                        if result_inform==0:
-                            continue_criteria=True
-                    if continue_criteria==True:
-                        continue
-                    metabolite1_name= inform[0][0]
-                    metabolite1_head_tail= inform[0][2]
-                    metabolite2_name= inform[1][0]
-                    metabolite2_head_tail= inform[1][2]
-                    if metabolite1_head_tail=='head' and metabolite2_head_tail=='tail':
-                        reaction= metabolite2_name+' -> '+ metabolite1_name
-                    elif metabolite1_head_tail=='head' and metabolite2_head_tail=='head':
-                        reaction= metabolite1_name+' <-> '+ metabolite2_name
-                    elif metabolite1_head_tail=='tail' and metabolite2_head_tail=='head':
-                        reaction= metabolite1_name+' -> '+ metabolite2_name
-                    elif metabolite1_head_tail=='None' and metabolite2_head_tail=='None':
-                        reaction= metabolite1_name+' |-| '+ metabolite2_name
-                    elif metabolite1_head_tail=='tail' and metabolite2_head_tail=='tail':
-                        reaction= metabolite1_name+' --- '+ metabolite2_name
-
-                    gene_enzyme_other_inform= ocr_not_contained_arrow_match[arrow_ocr]
-                    total_output.append([reaction,gene_enzyme_other_inform])
-                image_inform=[]
-                
-                for each_inform in total_output:
-                    key= each_inform[0]
-                    inform= each_inform[1]
-                    gene_list=[]
-                    protein_list=[]
-                    others_list=[]
-                    for other_ocr in inform:
-                        if other_ocr[1]=='gene':
-                            gene_list.append(other_ocr[0])
-                        elif other_ocr[1]=='protein':
-                            protein_list.append(other_ocr[0])
-                        else:
-                            others_list.append(other_ocr[0])
-                    image_inform.append([arrow_file_name.replace('.txt',''), key, gene_list, protein_list, others_list])
-                result= pd.DataFrame(image_inform, columns=['image_name','reaction','gene','protein', 'others'])
-                dataframe= pd.concat([dataframe, result])
-                dataframe.to_excel(args.output+'/output.xlsx')
-                
-                print(arrow_file_name.replace('.txt','')+' finished')
-            
-            except:
-                print(arrow_file_name.replace('.txt','')+' error')
-                
-            '''
             for arrow_ocr, inform in arrow_ocr_match.items():
                 continue_criteria=False
                 for result_inform in inform:

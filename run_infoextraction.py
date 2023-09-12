@@ -6,12 +6,12 @@ import os
 import subprocess
 import time
 from arrow.arrow_total import arrow_head_tail
+from bulkdownload_and_imageclassification.bulk_download import bulkdownload
+from bulkdownload_and_imageclassification.classification import classification
 from paddleocr.tools.infer.predict_system import main
 from pathway.chemical_reaction_output import make_reaction_and_text_classifier
 from text.ocr_bbox import find_and_combine_ocr_bbox
 from text.text_classifier_model import text_classifier
-from bulkdownload_and_imageclassification.bulk_download import bulkdownload
-from bulkdownload_and_imageclassification.classification import classification
 
 t1 = time.time()
 
