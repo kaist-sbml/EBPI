@@ -24,7 +24,7 @@ class Classification_Model(nn.Module):
         return out
 
 def text_classifier(args, ocr_not_contained_name):
-    checkpoint_bert = parent_dir + '/text/model/text_classifier_model_230823.pickle'
+    checkpoint_bert = parent_dir + '/text/model/text_classifier_model.pickle'
     tokenizer= AutoTokenizer.from_pretrained('dmis-lab/biobert-base-cased-v1.2', do_lower_case=False, truncation=True)
     encoded_dict = tokenizer.batch_encode_plus(
             batch_text_or_text_pairs= ocr_not_contained_name,
