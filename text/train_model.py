@@ -16,37 +16,40 @@ from sklearn.metrics import accuracy_score
 # In[2]:
 
 
-gene_data= pd.read_excel('train_data/gene_dataset.xlsx')
-gene_protein_data= pd.read_excel('train_data/protein_gene_dataset.xlsx')
-protein_complex_data= pd.read_excel('train_data/protein_complex_dataset.xlsx')
-other_data= pd.read_excel('train_data/other_data.xlsx')
+gene_data= pd.read_excel('./train_data/gene.xlsx')
+protein_data= pd.read_excel('./train_data/protein.xlsx')
+others_data= pd.read_excel('./train_data/others.xlsx')
 
 
 # In[3]:
 
 
-gene_list= [str(gene[1].values[0]) for gene in gene_data.iterrows()]
-gene_protein_list= [str(gene_protein[1].values[0])+' ('+str(gene_protein[1].values[1])+')' for gene_protein in gene_protein_data.dropna(subset=['gene']).iterrows() if not str(gene_protein[1].values[0])==str(gene_protein[1].values[1])]
-protein_complex_list= [str(protein_complex[1].values[0]) for protein_complex in protein_complex_data.iterrows()]
-other_list= [str(other_data[1].values[1]) for other_data in other_data.dropna(subset=[0]).iterrows()]
-for i in range(10):
-    other_list.append('')
+gene_list= list(gene_data.iloc[:,0])
+protein_list = list(protein_data.iloc[:,0])
+others_list = [str(value) for value in list(others_data.iloc[:,0])]
+
+print(len(gene_list), len(protein_list), len(others_list))
+
+gene_list = list(set(gene_list))
+protein_list = list(set(protein_list))
+others_list = list(set(others_list))
+
+print(len(gene_list), len(protein_list), len(others_list))
 
 
 # In[4]:
 
 
-gene_label=[[1,0,0,0] for i in range(len(gene_list))]
-gene_protein_label=[[0,1,0,0] for i in range(len(gene_protein_list))]
-protein_complex_label=[[0,0,1,0] for i in range(len(protein_complex_list))]
-other_label=[[0,0,0,1] for i in range(len(other_list))]
+gene_label=[[1,0,0] for i in range(len(gene_list))]
+protein_label=[[0,1,0] for i in range(len(protein_list))]
+others_label=[[0,0,1] for i in range(len(others_list))]
 
 
 # In[5]:
 
 
-data_x= gene_list+ gene_protein_list+ protein_complex_list+ other_list
-data_y= torch.tensor(gene_label+ gene_protein_label+ protein_complex_label+ other_label)
+data_x= gene_list+protein_list+others_list
+data_y= torch.tensor(gene_label+protein_label+others_label)
 
 
 # In[6]:
@@ -85,7 +88,7 @@ class Classification_Model(nn.Module):
         super().__init__()
         self.device= device
         self.bert_model = AutoModel.from_pretrained('dmis-lab/biobert-base-cased-v1.2').to(self.device)
-        self.linear= nn.Linear(768,4).to(self.device)
+        self.linear= nn.Linear(768,3).to(self.device)
         self.softmax= nn.Softmax()
     
     def encode_id(self,input):
@@ -149,8 +152,8 @@ for epoch in range(epochs):
 
 
 validation_dataloader=  DataLoader(validation_dataset, batch_size=32, shuffle=False)
-logit_tensor= torch.empty((0,4))
-label_tensor= torch.empty((0,4))
+logit_tensor= torch.empty((0,3))
+label_tensor= torch.empty((0,3))
 with torch.no_grad():
     model.eval()
     for x, y in validation_dataloader:
@@ -161,7 +164,7 @@ with torch.no_grad():
         logit_tensor= torch.cat([logit_tensor,logit], dim=0)
         label_tensor= torch.cat([label_tensor,labels], dim=0)
 output = torch.argmax(logit_tensor,dim=1)
-output= F.one_hot(output,num_classes=4)
+output= F.one_hot(output,num_classes=3)
 accuracy= accuracy_score(label_tensor,output)
 
 
@@ -174,7 +177,7 @@ print(accuracy)
 # In[13]:
 
 
-torch.save(model.state_dict(), 'checkpoint/text_classifier_model.pickle')
+torch.save(model.state_dict(), './text_classifier_model.pickle')
 
 
 # In[ ]:
