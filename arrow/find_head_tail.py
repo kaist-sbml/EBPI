@@ -39,6 +39,8 @@ def find_head_tail(src):
     # convert back to 8-bit uint
     binaryImage = binaryImage.astype(np.uint8)
     Y, X = binaryImage.nonzero()
+    b1_inform='None'
+    b2_inform='None'
     if len(X) > 0 or len(Y) > 0:
         Y = Y.reshape(-1,1)
         X = X.reshape(-1,1)
@@ -50,47 +52,46 @@ def find_head_tail(src):
         # Set the convergence criteria and call K-means:
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
         _, label, center = cv2.kmeans(floatPoints, 2, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-    cluster1Count = np.count_nonzero(label)
-    cluster0Count = np.shape(label)[0] - cluster1Count
-    # Look for the cluster of max number of points
-    # That cluster will be the tip of the arrow:
-    maxCluster = 0
-    if cluster1Count > cluster0Count:
-        maxCluster = 1
-    elif cluster1Count == cluster0Count:
-        if cluster1Count>=2:
-            maxCluster = 2
-        else:
-            maxCluster = 3 
-    grayscaleImageCopy= cv2.cvtColor(src, cv2.COLOR_GRAY2BGR)
-    # Check out the centers of each cluster:
-    matRows, matCols = center.shape
-    # We need at least 2 points for this operation:
-    b1_inform='None'
-    b2_inform='None'
-    if matCols >= 2:
-        # Store the ordered end-points here:
-        orderedPoints = [None] * 2
-        # Let's identify and draw the two end-points
-        # of the arrow:
-        for b in range(matRows):
-            # Get cluster center:
-            pointX = int(center[b][0])
-            pointY = int(center[b][1])
-            # Get the "tip"
-            if b == maxCluster:
-                inform= [(pointX,pointY),'yes']
-            # Get the "tail"
+        
+        cluster1Count = np.count_nonzero(label)
+        cluster0Count = np.shape(label)[0] - cluster1Count
+        # Look for the cluster of max number of points
+        # That cluster will be the tip of the arrow:
+        maxCluster = 0
+        if cluster1Count > cluster0Count:
+            maxCluster = 1
+        elif cluster1Count == cluster0Count:
+            if cluster1Count>=2:
+                maxCluster = 2
             else:
-                if maxCluster == 3:
-                    inform= 'None'
+                maxCluster = 3 
+        grayscaleImageCopy= cv2.cvtColor(src, cv2.COLOR_GRAY2BGR)
+        # Check out the centers of each cluster:
+        matRows, matCols = center.shape
+        # We need at least 2 points for this operation:
+        if matCols >= 2:
+            # Store the ordered end-points here:
+            orderedPoints = [None] * 2
+            # Let's identify and draw the two end-points
+            # of the arrow:
+            for b in range(matRows):
+                # Get cluster center:
+                pointX = int(center[b][0])
+                pointY = int(center[b][1])
+                # Get the "tip"
+                if b == maxCluster:
+                    inform= [(pointX,pointY),'yes']
+                # Get the "tail"
                 else:
-                    if maxCluster != 2:
-                        inform=[(pointX,pointY),'no']
+                    if maxCluster == 3:
+                        inform= 'None'
                     else:
-                        inform=[(pointX,pointY),'yes']
-            if b==0:
-                b1_inform= inform
-            else:
-                b2_inform= inform
+                        if maxCluster != 2:
+                            inform=[(pointX,pointY),'no']
+                        else:
+                            inform=[(pointX,pointY),'yes']
+                if b==0:
+                    b1_inform= inform
+                else:
+                    b2_inform= inform
     return b1_inform, b2_inform

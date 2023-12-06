@@ -32,31 +32,30 @@ def arrow_head_tail(args):
         for box in bboxes:
             arrow_coor= box
 
-            try:
-                image_crop= image[max(arrow_coor[1]-5,0):min(arrow_coor[3]+5,800),max(arrow_coor[0]-5,0):min(arrow_coor[2]+5,800)]
-                dst= find_head_tail.find_head_tail(image_crop)
+            image_crop= image[max(arrow_coor[1]-5,0):min(arrow_coor[3]+5,800),max(arrow_coor[0]-5,0):min(arrow_coor[2]+5,800)]
+            dst= find_head_tail.find_head_tail(image_crop)
 
-                for point in dst:
-                    dst_coor= point[0]
-                    dst_head_tail= point[1]
-                    dst_coor_x= dst_coor[0]+ max(arrow_coor[0]-5,0)
-                    dst_coor_y= dst_coor[1]+ max(arrow_coor[1]-5,0)
-                    dst_list.append([(int(dst_coor_x*x_scale),int(dst_coor_y*y_scale)),dst_head_tail,number])
-                arrow_bbox_list.append([number,[box[0]*x_scale, box[1]*y_scale, box[2]*x_scale, box[3]*y_scale]])
-                number+=1
-
-            except:
-                arrow_bbox_list.append([number,[box[0]*x_scale, box[1]*y_scale, box[2]*x_scale, box[3]*y_scale]])
-                if arrow_coor[2]-arrow_coor[0]> arrow_coor[3]-arrow_coor[1]:
-                    dst_list.append([(int(arrow_coor[0]*x_scale),int((arrow_coor[1]+arrow_coor[3])*y_scale/2)),'None',number])
-                    dst_list.append([(int(arrow_coor[2]*x_scale),int((arrow_coor[1]+arrow_coor[3])*y_scale/2)),'None',number])
-                    number+=1
-
-
-                else:
-                    dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[1]*y_scale)),'None',number])
-                    dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[3]*y_scale)),'None',number])
-                    number+=1
+            for point in dst:
+                if dst == ('None', 'None'):
+                    arrow_bbox_list.append([number,[box[0]*x_scale, box[1]*y_scale, box[2]*x_scale, box[3]*y_scale]])
+                    if arrow_coor[2]-arrow_coor[0]> arrow_coor[3]-arrow_coor[1]:
+                        dst_list.append([(int(arrow_coor[0]*x_scale),int((arrow_coor[1]+arrow_coor[3])*y_scale/2)),'None',number])
+                        dst_list.append([(int(arrow_coor[2]*x_scale),int((arrow_coor[1]+arrow_coor[3])*y_scale/2)),'None',number])
+                        number+=1
+                    else:
+                        dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[1]*y_scale)),'None',number])
+                        dst_list.append([(int((arrow_coor[0]+arrow_coor[2])*x_scale/2), int(arrow_coor[3]*y_scale)),'None',number])
+                        number+=1
+                        
+                    break
+                    
+                dst_coor= point[0]
+                dst_head_tail= point[1]
+                dst_coor_x= dst_coor[0]+ max(arrow_coor[0]-5,0)
+                dst_coor_y= dst_coor[1]+ max(arrow_coor[1]-5,0)
+                dst_list.append([(int(dst_coor_x*x_scale),int(dst_coor_y*y_scale)),dst_head_tail,number])
+            arrow_bbox_list.append([number,[box[0]*x_scale, box[1]*y_scale, box[2]*x_scale, box[3]*y_scale]])
+            number+=1
 
         if not 'arrow_detection_result' in os.listdir(args.output):
             os.mkdir(parent_dir+'/'+args.output+'/arrow_detection_result')
