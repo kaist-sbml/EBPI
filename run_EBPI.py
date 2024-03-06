@@ -6,8 +6,8 @@ import os
 import subprocess
 import time
 from arrow.arrow_total import arrow_head_tail
-from bulkdownload_and_imageclassification.bulk_download import bulkdownload
-from bulkdownload_and_imageclassification.classification import classification
+from pmc.bulk_download import bulkdownload
+from pmc.classification import classification
 from paddleocr.tools.infer.predict_system import main
 from pathway.chemical_reaction_output import make_reaction_and_text_classifier
 from text.ocr_bbox import find_and_combine_ocr_bbox
@@ -47,8 +47,8 @@ args = parser.parse_args()
 if args.metabolite:
     pmc_name_dict=dict()
     abs_path= os.path.dirname(__file__)
-    pmc_list1= pd.read_csv(abs_path + '/bulkdownload_and_imageclassification/oa_non_comm_use_pdf.csv')
-    pmc_list2= pd.read_csv(abs_path + '/bulkdownload_and_imageclassification/oa_comm_use_file_list.csv')
+    pmc_list1= pd.read_csv(abs_path + '/pmc/oa_non_comm_use_pdf.csv')
+    pmc_list2= pd.read_csv(abs_path + '/pmc/oa_comm_use_file_list.csv')
 
     for name in list(pmc_list1['File']):
         pmc_name_dict[name.split('.')[1]]= 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
