@@ -74,8 +74,8 @@ train_size = int(dataset_size * 0.8)
 validation_size = int(dataset_size * 0.1)
 test_size = dataset_size - train_size - validation_size
 
-train_dataset, validation_dataset, test_dataset = random_split(dataset, [train_size, validation_size, test_size])
-train_dataloader=  DataLoader(train_dataset, batch_size=32, shuffle=True)
+generator1 = torch.Generator().manual_seed(42)
+train_dataset, validation_dataset, test_dataset = random_split(dataset, [train_size, validation_size, test_size], generator=generator1)
 
 
 # In[7]:
@@ -109,75 +109,121 @@ class Classification_Model(nn.Module):
         out=self.linear(out)
         out= self.softmax(out)
         return out
-    
 
-
+'''
+device=torch.device(1 if torch.cuda.is_available() else "cpu")
+print(Classification_Model(device).encode_id(["(-)-carveol dehydrogenase / (-)-isopiperitenol dehydrogenase"]))
+print(tokenizer.convert_ids_to_tokens([  101,   113,   118,   114,   118,  1610,  2707,  4063,  1260,  7889,
+         23632, 19790,  6530,   120,   113,   118,   114,   118,  1110,   102]))
+'''
 # In[8]:
 
+batch_size_parameters=[32, 16, 8, 4]
+learning_rate_parameters=[1e-6]
 
-device=torch.device(1 if torch.cuda.is_available() else "cpu")
-device_next= torch.device("cpu")
-model= Classification_Model(device)
+for batch_size_parameter in batch_size_parameters:
+    for learning_rate_parameter in learning_rate_parameters:
+        
+        early_stop_count = 0
+        patience = 4
+        best_loss = float('inf')
+        print("Batch size:", batch_size_parameter)
+        print("Learning rate:", learning_rate_parameter)
+        
+        train_dl = DataLoader(train_dataset, batch_size=batch_size_parameter, shuffle=True)
+        val_dl = DataLoader(validation_dataset, batch_size=batch_size_parameter, shuffle=False)
 
-
-# In[9]:
-
-
-batch_size=32
-learning_rate=1e-5
-optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
-epochs=20
-criterion= torch.nn.BCELoss()
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
-
-for epoch in range(epochs):
-    epoch_loss=0
-    for i, data in enumerate(train_dataloader):
-        inputs, labels = data 
-        logit= model.Embedding(inputs)
-        labels = labels.type(torch.FloatTensor)
-        logit= logit.to(device_next)
-        loss= criterion(logit,labels)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        epoch_loss+=loss.item()
-        if i%200==0:
-            print(f'Epoch: {epoch+1}/{epochs} | Batch: {i+1}/{len(train_dataloader)} | Cost: {loss.item()}')
-    print(f'Epoch: {epoch+1}/{epochs} | Cost: {epoch_loss/len(train_dataloader)}')
-    scheduler.step()
-
-
-# In[10]:
-
-
-validation_dataloader=  DataLoader(validation_dataset, batch_size=32, shuffle=False)
-logit_tensor= torch.empty((0,3))
-label_tensor= torch.empty((0,3))
-with torch.no_grad():
-    model.eval()
-    for x, y in validation_dataloader:
-        inputs, labels = data 
-        logit= model.Embedding(inputs)
-        labels = labels.type(torch.FloatTensor)
-        logit= logit.to(device_next)
-        logit_tensor= torch.cat([logit_tensor,logit], dim=0)
-        label_tensor= torch.cat([label_tensor,labels], dim=0)
-output = torch.argmax(logit_tensor,dim=1)
-output= F.one_hot(output,num_classes=3)
-accuracy= accuracy_score(label_tensor,output)
+        device=torch.device(1 if torch.cuda.is_available() else "cpu")
+        device_next= torch.device("cpu")
+        model= Classification_Model(device)
+        optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate_parameter)
+        epochs=20
+        criterion= torch.nn.BCELoss()
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
+        loss_train_epoch = []
+        loss_val_epoch = []
+        
+        
+        for epoch in range(epochs):
+            epoch_loss=0
+            for i, data in enumerate(train_dl):
+                inputs, labels = data 
+                logit= model.Embedding(inputs)
+                labels = labels.type(torch.FloatTensor)
+                logit= logit.to(device_next)
+                loss= criterion(logit,labels)
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
+                epoch_loss+=loss.item()
+                if i%200==0:
+                    print(f'Epoch: {epoch+1}/{epochs} | Batch: {i+1}/{len(train_dl)} | Cost: {loss.item()}')
+            print(f'Epoch: {epoch+1}/{epochs} | Cost: {epoch_loss/len(train_dl)}')
+            scheduler.step()
 
 
-# In[12]:
+        # In[10]:
+            logit_tensor= torch.empty((0,3))
+            label_tensor= torch.empty((0,3))
+            with torch.no_grad():
+                val_loss = 0
+                for i, data in enumerate(val_dl):
+                    inputs, labels = data 
+                    logit= model.Embedding(inputs)
+                    labels = labels.type(torch.FloatTensor)
+                    logit= logit.to(device_next)
+                    loss= criterion(logit,labels)
+                    val_loss += loss
+                    
+                print("Validation loss: "+str(val_loss/len(val_dl)))
 
+        
+            epoch_training_loss= round(float(epoch_loss/len(train_dl)),4)
+            epoch_val_loss= round(float(val_loss.detach().cpu().numpy()/len(val_dl)),4)
+            loss_train_epoch.append(epoch_training_loss)
+            loss_val_epoch.append(epoch_val_loss)
+            print('EPOCH: '+str(epoch+1)+'\t'+'training_loss: '+str(epoch_training_loss)+'\t'+ 'validation_loss: '+str(epoch_val_loss)+'\n')
 
-print(accuracy)
+            if epoch_val_loss > best_loss:
+                early_stop_count += 1
+            else:
+                best_loss = epoch_val_loss
+                early_stop_count = 0
+            
+            print("Best loss: " + str(best_loss))
+            print("Early stop count: " + str(early_stop_count))
+            print("")
+            
+            if early_stop_count >= patience:
+                break
 
+        test_dl=  DataLoader(test_dataset, batch_size=batch_size_parameter, shuffle=False)
+        logit_tensor= torch.empty((0,3))
+        label_tensor= torch.empty((0,3))
+        with torch.no_grad():
+            model.eval()
+            for i, data in enumerate(test_dl):
+                inputs, labels = data 
+                logit= model.Embedding(inputs)
+                labels = labels.type(torch.FloatTensor)
+                logit= logit.to(device_next)
+                logit_tensor= torch.cat([logit_tensor,logit], dim=0)
+                label_tensor= torch.cat([label_tensor,labels], dim=0)
+        output = torch.argmax(logit_tensor,dim=1)
+        output= F.one_hot(output,num_classes=3)
+        accuracy= accuracy_score(label_tensor,output)
 
-# In[13]:
+        print("Test accuracy:", accuracy)
 
+        with open("train_model_result_231110.txt", "a") as f:
+            f.write("batch_size_parameter: " + str(batch_size_parameter) + '\n')
+            f.write("learning_rate_parameter: " + str(learning_rate_parameter) + '\n')
+            f.write("loss_train_epoch: " + str(loss_train_epoch) + '\n')
+            f.write("loss_val_epoch: " + str(loss_val_epoch) + '\n')
+            f.write("accuracy for test set: " + str(accuracy) + '\n')
+            f.write('\n')
 
-torch.save(model.state_dict(), './text_classifier_model.pickle')
+#torch.save(model.state_dict(), './text_classifier_model.pickle')
 
 
 # In[ ]:

@@ -222,14 +222,18 @@ def make_reaction_and_text_classifier(args, text_classifier):
             if data == '' or bbox_data == '':
                 continue
             
-            image_ocr= each_image_ocr[arrow_file_name.replace('.txt','')]
+            if arrow_file_name.replace('.txt','') in each_image_ocr:
+                image_ocr= each_image_ocr[arrow_file_name.replace('.txt','')]
+            else:
+                continue
+
             arrow_inform= data.split('\n')
             bbox_inform= bbox_data.split('\n')
             ocr_not_contained=list()
             ocr_not_contained_name= list()
             total_output=list()
             arrow_inform= sort_arrow_head_tail(arrow_inform,image_ocr,bbox_inform, basic_formula, special_unit)
-            ocr_list= [word['transcription'] for word in image_ocr if not len(word['transcription'])==1 and not word['transcription'].upper() in basic_formula and not word['transcription'] in special_unit]
+            ocr_list= [word['transcription'] for word in image_ocr if not len(word['transcription'])==1 or word['transcription'].upper in basic_formula or word['transcription'] in special_unit]
             
             if ocr_list==[]:
                 continue

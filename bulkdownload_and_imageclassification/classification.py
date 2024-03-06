@@ -11,6 +11,7 @@ from PIL import Image
 from torchvision import transforms, datasets
 
 abs_path = os.path.dirname(__file__)
+Image.MAX_IMAGE_PIXELS = None
 
 def processing(metabolite, device):
     model_name = 'efficientnet-b0'
@@ -55,12 +56,14 @@ def classification(args, bulkdownload_result):
 
         for name,label in total_result.items():
             revise_name = name.split('/')[-1]
-            if label == 0:
-                os.remove(name)
-            else:
-                shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name)
+            #if label == 0:
+            #    os.remove(name)
+            #else:
+            if label == 1:
+                #shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name)
+                shutil.copy(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name)
                 
         return True
     else:
         return False
-    shutil.rmtree(abs_path+'/output_file/')
+    #shutil.rmtree(abs_path+'/output_file/')
