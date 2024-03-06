@@ -1,4 +1,4 @@
-# InfoExtraction
+# EBPI
 * Note: This source code was developed in Linux, and has been tested with Python 3.8
 
 ## Source 
