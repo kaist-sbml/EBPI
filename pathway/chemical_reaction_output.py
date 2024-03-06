@@ -199,9 +199,7 @@ def make_reaction_and_text_classifier(args, text_classifier):
     ocr_result= open(args.output+'/'+'system_revise_results.txt','r').read()
     ocr_inform= ocr_result.split('\n')
     dataframe= pd.DataFrame(columns=['image_name','reaction','gene','protein','others'])
-    
-    if not 'final_output' in os.listdir(args.output):
-        os.mkdir(args.output+'/final_output')
+
     for each_image in ocr_inform:
         if each_image=='':
             continue
