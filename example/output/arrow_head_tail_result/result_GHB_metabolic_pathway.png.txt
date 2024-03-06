@@ -1,0 +1,12 @@
+arrow_number:0 ; coor:(175, 285) ; head_tail:head
+arrow_number:0 ; coor:(175, 177) ; head_tail:tail
+arrow_number:1 ; coor:(452, 373) ; head_tail:head
+arrow_number:1 ; coor:(344, 374) ; head_tail:tail
+arrow_number:2 ; coor:(648, 524) ; head_tail:tail
+arrow_number:2 ; coor:(648, 631) ; head_tail:head
+arrow_number:3 ; coor:(938, 387) ; head_tail:head
+arrow_number:3 ; coor:(832, 387) ; head_tail:tail
+arrow_number:4 ; coor:(1100, 525) ; head_tail:tail
+arrow_number:4 ; coor:(1100, 633) ; head_tail:head
+arrow_number:5 ; coor:(652, 295) ; head_tail:head
+arrow_number:5 ; coor:(653, 188) ; head_tail:tail
