@@ -56,12 +56,13 @@ if args.metabolite:
     for name in list(pmc_list2['File']):
         pmc_name_dict[name.split('/')[-1].strip('.tar.gz')] = 'https://ftp.ncbi.nlm.nih.gov/pub/pmc/'+ name
     
-    metabolites= args.metabolite.split(' ')
+    metabolites= args.metabolite.split(';')
     original_input_dir = args.input
     original_output_dir = args.output
     
     for metabolite in metabolites:
 
+        metabolite = metabolite.strip(' ')
         args.metabolite= metabolite
         args.input= os.path.join(original_input_dir,metabolite)
         args.output= os.path.join(original_output_dir,metabolite)
