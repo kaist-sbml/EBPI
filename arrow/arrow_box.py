@@ -1,24 +1,17 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[9]:
-
-
-import pandas as pd
-import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import os
 import itertools
-import torch.nn as nn
-import torch
-from torch.utils.data import Dataset, DataLoader
+import matplotlib.pyplot as plt
+import numpy as np
+import os
 import pandas as pd
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection import FasterRCNN
-from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2
-from torchvision.models.detection.rpn import AnchorGenerator
+import torch
+import torch.nn as nn
 import torchvision.transforms as T
+from torch.utils.data import DataLoader, Dataset
+from torchvision.models.detection import FasterRCNN, fasterrcnn_resnet50_fpn_v2
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.rpn import AnchorGenerator
 
 parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
@@ -28,7 +21,6 @@ def bounding_box_intersection(box1, box2):
     
     min_dist_x= min(a[2]-a[0],b[2]-b[0])
     min_dist_y= min(a[3]-a[1],b[3]-b[1])
-    
     
     startX = max( min(a[0], a[2]), min(b[0], b[2]) )
     startY = max( min(a[1], a[3]), min(b[1], b[3]) )
@@ -56,7 +48,6 @@ def combineRect(rectA, rectB):
     endY = max( a[3], b[3] )
 
     return (startX, startY, endX, endY)
-    
     
 def arrow_distinguish_test(threshold, test_image_path, device):
     checkpoint = parent_dir + '/arrow/model/checkpoint.pickle'

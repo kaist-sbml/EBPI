@@ -1,12 +1,13 @@
+
 import ast
 import cv2
+import difflib
 import itertools
 import numpy as np
 import os 
 import subprocess
 from cv2 import groupRectangles
 from PIL import Image
-import difflib
 
 def compare(a,b):
     if difflib.SequenceMatcher(None,a,b).ratio()>0.8:
@@ -28,7 +29,6 @@ def intersection(rectA, rectB):
     else:
         return False    
     
-    
 def combineRect(rectA, rectB):
     a, b = rectA, rectB
     startX = min( a[0], b[0] )
@@ -37,7 +37,6 @@ def combineRect(rectA, rectB):
     endY = max( a[3], b[3] )
 
     return (startX, startY, endX, endY,'1')
-
 
 def checkIntersectAndCombine(rects):
     if rects is None:
@@ -108,7 +107,6 @@ def find_and_combine_ocr_bbox(args):
             info_dict["points"] = info[0]
             paddleocr_pathway_info[paddleocr_pathway_id].append(info_dict)
             
-    #remove image that not contains target product
     if args.metabolite:
         remove_key = []
         for id, ocr_informs in paddleocr_pathway_info.items():
@@ -124,7 +122,6 @@ def find_and_combine_ocr_bbox(args):
             os.remove(os.path.join(args.input,key))
     print('OCR process ended')
     print('OCR revise process start....')
-    
     
     f = open(args.output+'/'+'system_revise_results.txt', 'w')
     

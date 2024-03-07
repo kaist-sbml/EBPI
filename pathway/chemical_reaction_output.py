@@ -1,15 +1,10 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[174]:
-
-
-import os
 import ast
-import numpy as np
-import time
 import math
+import numpy as np
+import os
 import pandas as pd
+import time
 
 def middle_criteria(arrow_point1, arrow_point2, ocr_middle_point):
     a = np.array([arrow_point1[0], arrow_point1[1]]) 
@@ -72,15 +67,11 @@ def sort_arrow_head_tail(arrow_inform, image_ocr, bbox_inform, basic_formula, sp
                 continue
             name= word['transcription']
             points= word['points']
-            '''
-            if arrow_name in arrow_min_distance:
-                if points == arrow_min_distance[arrow_name][0][2]:
-                    continue'''
+
             for letter in name:
                 if letter in special_unit:
                     name= name.replace(letter,'')
 
-            # whether ocr is metabolite or not
             point_x_sum=0
             point_y_sum=0
             for point in points:
@@ -142,7 +133,6 @@ def arrow_ocr_match_function(arrow_inform, image_ocr, bbox_inform, basic_formula
             word= image_ocr[i]
             word_class= word_class_total[i]
             if len(word['transcription'])==1 or word['transcription'].upper in basic_formula or word['transcription'] in special_unit:
-                #\ or np.argmax(np.array(word_class)) != 3:
                 continue
             name= word['transcription']
             points= word['points']
@@ -154,7 +144,6 @@ def arrow_ocr_match_function(arrow_inform, image_ocr, bbox_inform, basic_formula
                 if letter in special_unit:
                     name= name.replace(letter,'')
 
-            # whether ocr is metabolite or not
             point_x_sum=0
             point_y_sum=0
             for point in points:
@@ -240,8 +229,7 @@ def make_reaction_and_text_classifier(args, text_classifier):
                 word_class_total= text_classifier(args,ocr_list).detach().numpy()
                 image_ocr=[ocr for ocr in image_ocr if ocr['transcription'] in ocr_list]
                 arrow_ocr_match, ocr_contained, arrow_name_set= arrow_ocr_match_function(arrow_inform, image_ocr, bbox_inform, basic_formula, special_unit,word_class_total)
-                
-                #ocr not contained list        
+                  
                 for i in range(len(image_ocr)):
                     word_ocr= image_ocr[i]
                     if not word_ocr in ocr_contained and not word_ocr['transcription'] in basic_formula and not word_ocr['transcription'] in special_unit:
@@ -251,9 +239,7 @@ def make_reaction_and_text_classifier(args, text_classifier):
                 for arrow_name in arrow_name_set:
                     ocr_not_contained_arrow_match[arrow_name]=[]  
             
-            #ocr that are not metabolites
             if len(ocr_not_contained_name)!=0:
-                #word_class_total= text_classifier(args,ocr_not_contained_name).detach().numpy()
                 for word_ocr_inform in ocr_not_contained:
                     word_ocr= word_ocr_inform[0]
                     index_number= word_ocr_inform[1]
@@ -267,7 +253,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
                         y_sum+= point[1]
                     x_avg= x_sum/len(word_ocr_coor)
                     y_avg= y_sum/len(word_ocr_coor)
-
                     min_dist= 10**9
 
                     for arrow_name in arrow_name_set:
@@ -280,8 +265,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
                         arrow_i_list= [ast.literal_eval(i.split(' ; ')[1].replace('coor:','')) for i in arrow_inform if arrow_name == i.split(' ; ')[0]]
                         middle_point= ((int(arrow_i[0])+int(arrow_i[2]))/2,(int(arrow_i[1])+int(arrow_i[3]))/2)
                         arrow_i_max_len= max(abs(arrow_i[2]-arrow_i[0]), abs(arrow_i[3]-arrow_i[1]))
-
-                        #whether ocr is near the arrow
 
                         for point in word_ocr_coor:
                             near_dist=(point[0]-middle_point[0])**2+(point[1]-middle_point[1])**2
@@ -325,8 +308,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
                     else:
                         continue
             
-            
-            #make reaction
             for arrow_ocr, inform in arrow_ocr_match.items():
                 continue_criteria=False
                 for result_inform in inform:

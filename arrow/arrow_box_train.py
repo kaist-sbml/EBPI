@@ -1,30 +1,21 @@
-#parameters
-learning_rate= 1e-3
-weight_decay_parameters= [0.001,0.0001]
-max_norm_parameters=[1,5]
-import argparse
-import pandas as pd
-import numpy as np
-import cv2
-from earlystopping import EarlyStopping
-import matplotlib.pyplot as plt
-import os
-import torch.nn as nn
-import torch
-from torch.utils.data import Dataset, DataLoader
-import pandas as pd
-import random
-import pickle
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection import FasterRCNN
-from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2, fasterrcnn_resnet50_fpn
-from torchvision.models.detection.rpn import AnchorGenerator
-from torch.utils.data import Dataset, DataLoader, random_split
-import torchvision.transforms as T
-    
-df = pd.read_csv('/data/user_home/dlwnsrb/dataset/final_label.csv')
 
-#random seed 고정
+import argparse
+import cv2
+import torch
+import torch.nn as nn
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
+import pickle
+import random
+import torchvision.transforms as T
+from earlystopping import EarlyStopping
+from torch.utils.data import DataLoader, Dataset, random_split
+from torchvision.models.detection import FasterRCNN, fasterrcnn_resnet50_fpn, fasterrcnn_resnet50_fpn_v2
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.rpn import AnchorGenerator
+
 random_seed = 42
 random.seed(random_seed)
 np.random.seed(random_seed)
@@ -33,13 +24,19 @@ torch.cuda.manual_seed(random_seed)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
+df = pd.read_csv('/data/user_home/dlwnsrb/dataset/final_label.csv')
+
+learning_rate= 1e-3
+weight_decay_parameters= [0.001,0.0001]
+max_norm_parameters=[1,5]
+
 def get_args_parser():
     parser = argparse.ArgumentParser('fasterrcnn training', add_help=False)
     parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
     parser.add_argument('--batch_size', default=8, type=int)
     return parser
-# In[18]:
+
 parser = argparse.ArgumentParser('fasterrcnn training', parents=[get_args_parser()])
 args = parser.parse_args()
 device = torch.device(int(args.device) if torch.cuda.is_available() else "cpu")
@@ -68,7 +65,6 @@ class Dataset_make(Dataset):
         area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
         area = torch.as_tensor(area, dtype=torch.float32)
         
-        # class가 1종류이기 때문에 label은 1로만 지정
         labels = records[["labels"]].values
         
         target = {}
@@ -100,10 +96,6 @@ train_dataset, validation_dataset= random_split(dataset, [train_size, validation
 train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=4, collate_fn=collate_fn)
 val_dl = DataLoader(validation_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4, collate_fn=collate_fn)
 
-
-# In[8]:
-
-
 for weight_decay_parameter in weight_decay_parameters:
     for max_norm_parameter in max_norm_parameters:
         dir_name= 'total_result/'+ str(learning_rate)+'_'+str(weight_decay_parameter)+'_'+str(max_norm_parameter)+'_'+str(args.batch_size)
@@ -123,7 +115,7 @@ for weight_decay_parameter in weight_decay_parameters:
         loss_train_iter=[]
         loss_train_epoch= []
         loss_val_epoch=[]
-        #early stopping
+
         es = EarlyStopping(patience=10, 
                            delta=0, 
                            mode='min', 

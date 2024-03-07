@@ -1,3 +1,4 @@
+
 import fitz
 import io
 import os
@@ -9,11 +10,10 @@ import time
 from Bio import Entrez
 from PIL import Image
 
-
 def bulkdownload(args, pmc_name_dict):
     headers= dict()
     headers['user_agent']= args.header
-    
+
     Entrez.email = args.email
     terms= args.metabolite+' AND metabolic engineering'
     handle = Entrez.esearch(db="pmc", term=terms, retmax=args.len)
@@ -76,7 +76,6 @@ def bulkdownload(args, pmc_name_dict):
 
             else:
                 response = requests.get(url, headers=headers, timeout=10)
-                # Save the PDF
                 if response.status_code == 200:
                     with open(file_name, "wb") as f:
                         f.write(response.content)
@@ -86,14 +85,3 @@ def bulkdownload(args, pmc_name_dict):
             pass
         
     return result_list
-'''
-if __name__ == '__main__':
-    header= 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
-    args.metabolite= '2,3-butanediol'
-    email= 'dlwnsrb@kaist.ac.kr'
-    len_request=200
-    bulkdownload(header, args.metabolite, email, len_request)'''
-
-
-
-

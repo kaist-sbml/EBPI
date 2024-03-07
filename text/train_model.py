@@ -1,59 +1,30 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[1]:
-
-
-from torch.utils.data import Dataset, DataLoader, random_split
 import pandas as pd
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, AutoModel
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score
-
-
-# In[2]:
-
+from torch.utils.data import DataLoader, Dataset, random_split
+from transformers import AutoModel, AutoTokenizer
 
 gene_data= pd.read_excel('./train_data/gene.xlsx')
 protein_data= pd.read_excel('./train_data/protein.xlsx')
 others_data= pd.read_excel('./train_data/others.xlsx')
 
-
-# In[3]:
-
-
 gene_list= list(gene_data.iloc[:,0])
 protein_list = list(protein_data.iloc[:,0])
 others_list = [str(value) for value in list(others_data.iloc[:,0])]
-
-print(len(gene_list), len(protein_list), len(others_list))
 
 gene_list = list(set(gene_list))
 protein_list = list(set(protein_list))
 others_list = list(set(others_list))
 
-print(len(gene_list), len(protein_list), len(others_list))
-
-
-# In[4]:
-
-
 gene_label=[[1,0,0] for i in range(len(gene_list))]
 protein_label=[[0,1,0] for i in range(len(protein_list))]
 others_label=[[0,0,1] for i in range(len(others_list))]
 
-
-# In[5]:
-
-
 data_x= gene_list+protein_list+others_list
 data_y= torch.tensor(gene_label+protein_label+others_label)
-
-
-# In[6]:
-
 
 class MyBaseDataset(Dataset):
     def __init__(self, x_data, y_data):
@@ -76,10 +47,6 @@ test_size = dataset_size - train_size - validation_size
 
 generator1 = torch.Generator().manual_seed(42)
 train_dataset, validation_dataset, test_dataset = random_split(dataset, [train_size, validation_size, test_size], generator=generator1)
-
-
-# In[7]:
-
 
 tokenizer= AutoTokenizer.from_pretrained('dmis-lab/biobert-base-cased-v1.2', do_lower_case=False)
 
@@ -110,14 +77,6 @@ class Classification_Model(nn.Module):
         out= self.softmax(out)
         return out
 
-'''
-device=torch.device(1 if torch.cuda.is_available() else "cpu")
-print(Classification_Model(device).encode_id(["(-)-carveol dehydrogenase / (-)-isopiperitenol dehydrogenase"]))
-print(tokenizer.convert_ids_to_tokens([  101,   113,   118,   114,   118,  1610,  2707,  4063,  1260,  7889,
-         23632, 19790,  6530,   120,   113,   118,   114,   118,  1110,   102]))
-'''
-# In[8]:
-
 batch_size_parameters=[32, 16, 8, 4]
 learning_rate_parameters=[1e-6]
 
@@ -143,7 +102,6 @@ for batch_size_parameter in batch_size_parameters:
         loss_train_epoch = []
         loss_val_epoch = []
         
-        
         for epoch in range(epochs):
             epoch_loss=0
             for i, data in enumerate(train_dl):
@@ -161,8 +119,6 @@ for batch_size_parameter in batch_size_parameters:
             print(f'Epoch: {epoch+1}/{epochs} | Cost: {epoch_loss/len(train_dl)}')
             scheduler.step()
 
-
-        # In[10]:
             logit_tensor= torch.empty((0,3))
             label_tensor= torch.empty((0,3))
             with torch.no_grad():
@@ -176,7 +132,6 @@ for batch_size_parameter in batch_size_parameters:
                     val_loss += loss
                     
                 print("Validation loss: "+str(val_loss/len(val_dl)))
-
         
             epoch_training_loss= round(float(epoch_loss/len(train_dl)),4)
             epoch_val_loss= round(float(val_loss.detach().cpu().numpy()/len(val_dl)),4)
@@ -222,12 +177,3 @@ for batch_size_parameter in batch_size_parameters:
             f.write("loss_val_epoch: " + str(loss_val_epoch) + '\n')
             f.write("accuracy for test set: " + str(accuracy) + '\n')
             f.write('\n')
-
-#torch.save(model.state_dict(), './text_classifier_model.pickle')
-
-
-# In[ ]:
-
-
-
-

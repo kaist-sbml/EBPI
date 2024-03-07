@@ -1,10 +1,10 @@
+
 import pandas as pd
 import os
-from transformers import AutoTokenizer, AutoModel
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, Dataset
-from transformers import logging
+from transformers import AutoModel, AutoTokenizer
 
 parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 

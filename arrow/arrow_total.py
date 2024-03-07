@@ -1,3 +1,4 @@
+
 import ast
 import copy
 import cv2
@@ -6,10 +7,9 @@ import torch
 from . import arrow_box, find_head_tail
 from PIL import Image
 
-
 cpu_device = torch.device("cpu")
 parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-#arrow_detection_output
+
 def arrow_head_tail(args):
     device = torch.device(args.gpu if torch.cuda.is_available() else "cpu")
     image_directory= parent_dir+'/'+ args.input
@@ -61,7 +61,6 @@ def arrow_head_tail(args):
             os.mkdir(parent_dir+'/'+args.output+'/arrow_detection_result')
         if not 'arrow_head_tail_result' in os.listdir(args.output):
             os.mkdir(parent_dir+'/'+args.output+'/arrow_head_tail_result')
-
 
         f= open(parent_dir+'/'+args.output+'/arrow_head_tail_result/result_'+image_name+'.txt','w')
         for dst in dst_list:
