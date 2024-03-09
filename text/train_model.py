@@ -1,4 +1,5 @@
 
+import logging
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -86,8 +87,8 @@ for batch_size_parameter in batch_size_parameters:
         early_stop_count = 0
         patience = 4
         best_loss = float('inf')
-        print("Batch size:", batch_size_parameter)
-        print("Learning rate:", learning_rate_parameter)
+        logging.info("Batch size:", batch_size_parameter)
+        logging.info("Learning rate:", learning_rate_parameter)
         
         train_dl = DataLoader(train_dataset, batch_size=batch_size_parameter, shuffle=True)
         val_dl = DataLoader(validation_dataset, batch_size=batch_size_parameter, shuffle=False)
@@ -115,8 +116,8 @@ for batch_size_parameter in batch_size_parameters:
                 optimizer.step()
                 epoch_loss+=loss.item()
                 if i%200==0:
-                    print(f'Epoch: {epoch+1}/{epochs} | Batch: {i+1}/{len(train_dl)} | Cost: {loss.item()}')
-            print(f'Epoch: {epoch+1}/{epochs} | Cost: {epoch_loss/len(train_dl)}')
+                    logging.info(f'Epoch: {epoch+1}/{epochs} | Batch: {i+1}/{len(train_dl)} | Cost: {loss.item()}')
+            logging.info(f'Epoch: {epoch+1}/{epochs} | Cost: {epoch_loss/len(train_dl)}')
             scheduler.step()
 
             logit_tensor= torch.empty((0,3))
@@ -131,13 +132,13 @@ for batch_size_parameter in batch_size_parameters:
                     loss= criterion(logit,labels)
                     val_loss += loss
                     
-                print("Validation loss: "+str(val_loss/len(val_dl)))
+                logging.info("Validation loss: "+str(val_loss/len(val_dl)))
         
             epoch_training_loss= round(float(epoch_loss/len(train_dl)),4)
             epoch_val_loss= round(float(val_loss.detach().cpu().numpy()/len(val_dl)),4)
             loss_train_epoch.append(epoch_training_loss)
             loss_val_epoch.append(epoch_val_loss)
-            print('EPOCH: '+str(epoch+1)+'\t'+'training_loss: '+str(epoch_training_loss)+'\t'+ 'validation_loss: '+str(epoch_val_loss)+'\n')
+            logging.info('EPOCH: '+str(epoch+1)+'\t'+'training_loss: '+str(epoch_training_loss)+'\t'+ 'validation_loss: '+str(epoch_val_loss)+'\n')
 
             if epoch_val_loss > best_loss:
                 early_stop_count += 1
@@ -145,9 +146,9 @@ for batch_size_parameter in batch_size_parameters:
                 best_loss = epoch_val_loss
                 early_stop_count = 0
             
-            print("Best loss: " + str(best_loss))
-            print("Early stop count: " + str(early_stop_count))
-            print("")
+            logging.info("Best loss: " + str(best_loss))
+            logging.info("Early stop count: " + str(early_stop_count))
+            logging.info("")
             
             if early_stop_count >= patience:
                 break
@@ -168,7 +169,7 @@ for batch_size_parameter in batch_size_parameters:
         output= F.one_hot(output,num_classes=3)
         accuracy= accuracy_score(label_tensor,output)
 
-        print("Test accuracy:", accuracy)
+        logging.info("Test accuracy:", accuracy)
 
         with open("train_model_result_231110.txt", "a") as f:
             f.write("batch_size_parameter: " + str(batch_size_parameter) + '\n')

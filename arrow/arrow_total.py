@@ -2,6 +2,7 @@
 import ast
 import copy
 import cv2
+import logging
 import os
 import torch
 from . import arrow_box, find_head_tail
@@ -78,4 +79,4 @@ def arrow_head_tail(args):
             f.write("arrow_number:{} ; coor:{}".format(bbox[0],bbox[1]))
             f.write("\n")
         f.close()
-        print(image_name+' done')
+        logging.info(image_name+' done')

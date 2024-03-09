@@ -1,14 +1,15 @@
 
 import argparse
 import cv2
-import torch
-import torch.nn as nn
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
 import pickle
 import random
+import torch
+import torch.nn as nn
 import torchvision.transforms as T
 from earlystopping import EarlyStopping
 from torch.utils.data import DataLoader, Dataset, random_split
@@ -136,8 +137,8 @@ for weight_decay_parameter in weight_decay_parameters:
                 epoch_loss+= losses
                 loss_train_iter.append(round(float(losses.detach().cpu().numpy()),4))
                 if (i) % 200==0:
-                    print(f'Epoch {epoch+1} - Iteration: {i}/{len(train_dl)}, Total: {losses:.4f}, Regression: {loss_dict["loss_box_reg"]:.4f}, Classifier: {loss_dict["loss_classifier"]:.4f}')
-            print("Epoch_loss:",epoch_loss/len(train_dl))
+                    logging.info(f'Epoch {epoch+1} - Iteration: {i}/{len(train_dl)}, Total: {losses:.4f}, Regression: {loss_dict["loss_box_reg"]:.4f}, Classifier: {loss_dict["loss_classifier"]:.4f}')
+            logging.info("Epoch_loss:",epoch_loss/len(train_dl))
             scheduler.step()  
             
             
@@ -149,7 +150,7 @@ for weight_decay_parameter in weight_decay_parameters:
                     loss_dict = model(images, targets)
                     losses = sum(loss for loss in loss_dict.values())
                     val_loss+= losses
-                print('validation loss is: '+str(val_loss/len(val_dl)))
+                logging.info('validation loss is: '+str(val_loss/len(val_dl)))
 
             pickle_name= str(learning_rate)+'_'+str(weight_decay_parameter)+'_'+str(max_norm_parameter)+'.pickle'
 

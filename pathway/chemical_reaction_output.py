@@ -1,5 +1,6 @@
 
 import ast
+import logging
 import math
 import numpy as np
 import os
@@ -200,7 +201,7 @@ def make_reaction_and_text_classifier(args, text_classifier):
     for file in os.listdir(args.output+'/arrow_head_tail_result'):
         if 'result_' in file:
             arrow_file_name= file.replace('result_','')
-            print(arrow_file_name.replace('.txt','')+' start')
+            logging.info(arrow_file_name.replace('.txt','')+' start')
             f= open(args.output+'/arrow_head_tail_result/'+file,'r')
             data= f.read()                      
             bbox= open(args.output+'/arrow_detection_result/arrow_bbox_'+arrow_file_name,'r')
@@ -352,4 +353,4 @@ def make_reaction_and_text_classifier(args, text_classifier):
             dataframe= pd.concat([dataframe, result])
             dataframe.to_excel(args.output+'/output.xlsx')
 
-            print(arrow_file_name.replace('.txt','')+' finished')
+            logging.info(arrow_file_name.replace('.txt','')+' finished')

@@ -1,6 +1,7 @@
 
 import fitz
 import io
+import logging
 import os
 import pandas as pd
 import requests
@@ -27,10 +28,10 @@ def bulkdownload(args, pmc_name_dict):
     if not os.path.exists(abs_path+'/output_file/'+args.metabolite+'/0'):
         os.makedirs(abs_path+'/output_file/'+args.metabolite+'/0')
     
-    print("The number of papers to download: %i"%len(result_list))
+    logging.info("The number of papers to download: %i"%len(result_list))
     
     for url in result_list:
-        print("URL: %s"%url)
+        logging.info("URL: %s"%url)
         file_name = abs_path+'/output_file/'+ args.metabolite+'/'+ url.split('/')[-1]
         try:
             if 'tar.gz' in url:
@@ -39,7 +40,7 @@ def bulkdownload(args, pmc_name_dict):
                     with open(file_name, "wb") as f:
                         f.write(response.content)
                 else:
-                    print(response.status_code)
+                    logging.info(response.status_code)
 
                 ap = tarfile.open(file_name)
 
@@ -57,7 +58,7 @@ def bulkdownload(args, pmc_name_dict):
                     with open(file_name, "wb") as f:
                         f.write(response.content)
                 else:
-                    print(response.status_code)
+                    logging.info(response.status_code)
 
                 pdf_file = fitz.open(file_name)
                 save_index=0
@@ -80,7 +81,7 @@ def bulkdownload(args, pmc_name_dict):
                     with open(file_name, "wb") as f:
                         f.write(response.content)
                 else:
-                    print(response.status_code)
+                    logging.info(response.status_code)
         except:
             pass
         

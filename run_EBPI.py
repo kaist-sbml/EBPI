@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import argparse
+import logging
 import os
 import subprocess
 import time
@@ -39,6 +40,8 @@ group.add_argument('-g', '--gpu', dest='gpu', type=str, default='cuda',
 
 
 args = parser.parse_args()
+logger = logging.getLogger('')
+logger.setLevel(logging.INFO)
 
 #bulk download of specific metabolite
 if args.metabolite:
@@ -69,32 +72,32 @@ if args.metabolite:
         if os.path.isdir(args.output) == False:
             os.makedirs(args.output)
 
-        print(metabolite+" start")
-        print("Bulk downloading....")
+        logging.info(metabolite+" start")
+        logging.info("Bulk downloading....")
         bulkdownload_result = bulkdownload(args, pmc_name_dict)
-        print("Bulk downloading ended")
+        logging.info("Bulk downloading ended")
         
         if bulkdownload_result == []:
-            print("There is no result to analyze")
+            logging.info("There is no result to analyze")
             
         else:
-            print("Image classification....")
+            logging.info("Image classification....")
             classification(args, bulkdownload_result)
-            print("Image classification ended")
+            logging.info("Image classification ended")
             #OCR
-            print('OCR finding....')
+            logging.info('OCR finding....')
             find_and_combine_ocr_bbox(args)
-            print('OCR revise process ended')
+            logging.info('OCR revise process ended')
 
             #Head tail
-            print('arrow_head_tail finding....')
+            logging.info('arrow_head_tail finding....')
             arrow_head_tail(args)
-            print('arrow_head_tail detection ended')
+            logging.info('arrow_head_tail detection ended')
 
             #final processing
-            print('start final processing....')
+            logging.info('start final processing....')
             output= make_reaction_and_text_classifier(args, text_classifier)
-            print('final output save to '+ args.output)
+            logging.info('final output save to '+ args.output)
 
 else:    
     if os.path.isdir(args.input) == False:
@@ -103,20 +106,20 @@ else:
     if os.path.isdir(args.output) == False:
         os.mkdir(args.output)
     #OCR
-    print('OCR finding....')
+    logging.info('OCR finding....')
     find_and_combine_ocr_bbox(args)
-    print('OCR revise process ended')
+    logging.info('OCR revise process ended')
 
     #Head tail
-    print('arrow_head_tail finding....')
+    logging.info('arrow_head_tail finding....')
     arrow_head_tail(args)
-    print('arrow_head_tail detection ended')
+    logging.info('arrow_head_tail detection ended')
 
     #final processing
-    print('start final processing....')
+    logging.info('start final processing....')
     output= make_reaction_and_text_classifier(args, text_classifier)
-    print('final output save to '+ args.output)
+    logging.info('final output save to '+ args.output)
 
 
 t2 = time.time()
-print('Execution time: %.3f minutes'%((t2-t1)/60))
+logging.info('Execution time: %.3f minutes'%((t2-t1)/60))

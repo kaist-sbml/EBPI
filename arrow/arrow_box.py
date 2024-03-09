@@ -1,6 +1,7 @@
 
 import cv2
 import itertools
+import logging
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -95,4 +96,4 @@ def arrow_distinguish_test(threshold, test_image_path, device):
                 newboxes+= newRectsArray
         return newboxes
     except:
-        print('Cannot distinguish image')
+        logging.info('Cannot distinguish image')

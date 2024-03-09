@@ -3,6 +3,7 @@ import ast
 import cv2
 import difflib
 import itertools
+import logging
 import numpy as np
 import os 
 import subprocess
@@ -120,8 +121,8 @@ def find_and_combine_ocr_bbox(args):
         for key in remove_key:
             del paddleocr_pathway_info[key]
             os.remove(os.path.join(args.input,key))
-    print('OCR process ended')
-    print('OCR revise process start....')
+    logging.info('OCR process ended')
+    logging.info('OCR revise process start....')
     
     f = open(args.output+'/'+'system_revise_results.txt', 'w')
     
