@@ -1,5 +1,5 @@
 # EBPI
-* Note: This source code was developed in Linux, and has been tested with Python 3.8
+* Note: This source code was developed in Linux, and has been tested in Ubuntu 20.04 with Python 3.8 and CUDA version 11.7
 
 ## Source 
 
