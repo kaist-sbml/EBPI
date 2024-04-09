@@ -1,4 +1,3 @@
-
 import ast
 import cv2
 import difflib
@@ -9,6 +8,9 @@ import os
 import subprocess
 from cv2 import groupRectangles
 from PIL import Image
+
+parent_dir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
 
 def compare(a,b):
     if difflib.SequenceMatcher(None,a,b).ratio()>0.8:
@@ -90,10 +92,9 @@ def checkIntersectAndCombine(rects):
 def find_and_combine_ocr_bbox(args):
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
     basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N','COOH']
-    
-    paddleocr_binary_output = subprocess.check_output(['paddleocr', '--image_dir', '%s'%args.input])
+    image_dir= os.path.join(parent_dir, args.input)
+    paddleocr_binary_output = subprocess.check_output(['paddleocr', '--image_dir', '%s'%image_dir])
     paddleocr_output_list = paddleocr_binary_output.decode("utf-8").split("\n")
-    
     paddleocr_pathway_id = None
     paddleocr_pathway_info = {}
     for idx, elem in enumerate(paddleocr_output_list):
@@ -102,30 +103,27 @@ def find_and_combine_ocr_bbox(args):
                 paddleocr_pathway_id = elem.split("**********")[1].split('/')[-1]
                 paddleocr_pathway_info[paddleocr_pathway_id] = []
         if "[[[" in elem:
-            info = ast.literal_eval(elem.split("root INFO: ")[1])
+            info = ast.literal_eval(elem.split("ppocr INFO: ")[1])
             info_dict = {}
             info_dict["transcription"] = info[1][0]
             info_dict["points"] = info[0]
-            paddleocr_pathway_info[paddleocr_pathway_id].append(info_dict)
-            
+            paddleocr_pathway_info[paddleocr_pathway_id].append(info_dict)      
     if args.metabolite:
         remove_key = []
         for id, ocr_informs in paddleocr_pathway_info.items():
             criteria=False
             for ocr_inform in ocr_informs:
-                word= info_dict["transcription"]
-                if compare(word, args.metabolite):
+                word= ocr_inform["transcription"]
+                if compare(word.lower(), args.metabolite.lower()):
                     criteria= True
             if not criteria:
                 remove_key.append(id)
         for key in remove_key:
             del paddleocr_pathway_info[key]
-            os.remove(os.path.join(args.input,key))
+            os.remove(os.path.join(parent_dir,args.input,key))
     logging.info('OCR process ended')
     logging.info('OCR revise process start....')
-    
-    f = open(args.output+'/'+'system_revise_results.txt', 'w')
-    
+    f = open(os.path.join(parent_dir, args.output,'system_revise_results.txt'), 'w')
     for pathway_id in paddleocr_pathway_info:
         ocr_list = []
         ocr_dict = {}
