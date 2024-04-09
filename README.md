@@ -8,10 +8,10 @@
 git clone https://github.com/kaist-sbml/EBPI.git
 ```
 2. Download four large files from Google Drive and replace them in the repository
-   arrow/model/checkpoint.pickle
-   pmc/oa_comm_use_file_list.csv
-   pmc/oa_non_comm_use_pdf.csv
-   text/model/text_classifier_model.pickle
+   * arrow/model/checkpoint.pickle
+   * pmc/oa_comm_use_file_list.csv
+   * pmc/oa_non_comm_use_pdf.csv
+   * text/model/text_classifier_model.pickle
 ```
 https://drive.google.com/drive/folders/1yr96rPF2y6Oc96mLIE-E8hQRp6aZCt_e?usp=sharing
 ```
