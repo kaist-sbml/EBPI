@@ -1,4 +1,3 @@
-
 import ast
 import logging
 import math
@@ -185,8 +184,10 @@ def arrow_ocr_match_function(arrow_inform, image_ocr, bbox_inform, basic_formula
 
 
 def make_reaction_and_text_classifier(args, text_classifier):
+    pardir= os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+
     each_image_ocr= dict()
-    ocr_result= open(args.output+'/'+'system_revise_results.txt','r').read()
+    ocr_result= open(os.path.join(pardir,args.output,'system_revise_results.txt'),'r').read()
     ocr_inform= ocr_result.split('\n')
     dataframe= pd.DataFrame(columns=['image_name','reaction','gene','protein','others'])
 
@@ -198,7 +199,7 @@ def make_reaction_and_text_classifier(args, text_classifier):
 
     special_unit= '@#$%^&*+/↑→↓←><~!?:;'
     basic_formula=['OH','HO','NH','HN','SH','HS','H','O','S','N','C']
-    for file in os.listdir(args.output+'/arrow_head_tail_result'):
+    for file in os.listdir(os.path.join(pardir,args.output,'arrow_head_tail_result')):
         if 'result_' in file:
             arrow_file_name= file.replace('result_','')
             logging.info(arrow_file_name.replace('.txt','')+' start')
@@ -351,6 +352,6 @@ def make_reaction_and_text_classifier(args, text_classifier):
                 image_inform.append([arrow_file_name.replace('.txt',''), key, gene_list, protein_list, others_list])
             result= pd.DataFrame(image_inform, columns=['image_name','reaction','gene','protein', 'others'])
             dataframe= pd.concat([dataframe, result])
-            dataframe.to_excel(args.output+'/output.xlsx')
+            dataframe.to_excel(os.path.join(pardir,args.output,'output.xlsx'))
 
             logging.info(arrow_file_name.replace('.txt','')+' finished')
