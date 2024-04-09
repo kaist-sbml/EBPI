@@ -1,4 +1,3 @@
-
 import fitz
 import io
 import logging
@@ -14,7 +13,7 @@ from PIL import Image
 def bulkdownload(args, pmc_name_dict):
     headers= dict()
     headers['user_agent']= args.header
-
+    abs_path= os.path.dirname(os.path.abspath(__file__))
     Entrez.email = args.email
     terms= args.metabolite+' AND metabolic engineering'
     handle = Entrez.esearch(db="pmc", term=terms, retmax=args.len)

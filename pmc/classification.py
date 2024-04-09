@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import numpy as np
 import os
 import random
@@ -10,7 +7,7 @@ from efficientnet_pytorch import EfficientNet
 from PIL import Image
 from torchvision import transforms, datasets
 
-abs_path = os.path.dirname(__file__)
+abs_path= os.path.dirname(os.path.abspath(__file__))
 Image.MAX_IMAGE_PIXELS = None
 
 def processing(metabolite, device):
@@ -60,8 +57,9 @@ def classification(args, bulkdownload_result):
             #    os.remove(name)
             #else:
             if label == 1:
+                print(
                 #shutil.move(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name)
-                shutil.copy(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name)
+                shutil.copy(name, os.path.abspath(os.path.join(abs_path, os.pardir))+ '/' + args.input + '/' + revise_name))
                 
         return True
     else:
