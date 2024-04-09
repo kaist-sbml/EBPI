@@ -1,4 +1,3 @@
-
 import ast
 import copy
 import cv2
@@ -58,9 +57,9 @@ def arrow_head_tail(args):
             arrow_bbox_list.append([number,[box[0]*x_scale, box[1]*y_scale, box[2]*x_scale, box[3]*y_scale]])
             number+=1
 
-        if not 'arrow_detection_result' in os.listdir(args.output):
+        if not 'arrow_detection_result' in os.listdir(os.path.join(parent_dir,args.output)):
             os.mkdir(parent_dir+'/'+args.output+'/arrow_detection_result')
-        if not 'arrow_head_tail_result' in os.listdir(args.output):
+        if not 'arrow_head_tail_result' in os.listdir(os.path.join(parent_dir,args.output)):
             os.mkdir(parent_dir+'/'+args.output+'/arrow_head_tail_result')
 
         f= open(parent_dir+'/'+args.output+'/arrow_head_tail_result/result_'+image_name+'.txt','w')
