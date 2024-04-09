@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 import argparse
 import logging
 import os
@@ -13,6 +10,7 @@ from pmc.bulk_download import bulkdownload
 from pmc.classification import classification
 from text.ocr_bbox import find_and_combine_ocr_bbox
 from text.text_classifier_model import text_classifier
+import pandas as pd
 
 t1 = time.time()
 
@@ -46,7 +44,7 @@ logger.setLevel(logging.INFO)
 #bulk download of specific metabolite
 if args.metabolite:
     pmc_name_dict=dict()
-    abs_path= os.path.dirname(__file__)
+    abs_path= os.path.dirname(os.path.abspath(__file__))
     pmc_list1= pd.read_csv(abs_path + '/pmc/oa_non_comm_use_pdf.csv')
     pmc_list2= pd.read_csv(abs_path + '/pmc/oa_comm_use_file_list.csv')
 
@@ -71,7 +69,7 @@ if args.metabolite:
             os.makedirs(args.input)
         if os.path.isdir(args.output) == False:
             os.makedirs(args.output)
-
+        
         logging.info(metabolite+" start")
         logging.info("Bulk downloading....")
         bulkdownload_result = bulkdownload(args, pmc_name_dict)

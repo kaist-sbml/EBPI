@@ -18,7 +18,7 @@ conda activate EBPI
 * Run EBPI
 ```
 python run_EBPI.py -i "./example/input" -o "./example/output"
-python run_EBPI.py -m "Glycerone; Succinic acid" -e [An email for PMC search] -o "./output"
+python run_EBPI.py -m "Glycerone;Succinic acid" -e [An email for PMC search] -o "output"
 ```
 
 * For more information:
